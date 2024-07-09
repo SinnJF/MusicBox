@@ -126,7 +126,7 @@ ApplicationWindow {
                     icon.source: "images/ironman.png"
                     text: "格式转换"
                     onClicked: {
-                        homePage.currentIndex = 0   //todo:查下有没有解耦一点的写法或改其他组件
+                        homePage.currentIndex = 0   //TODO:查下有没有解耦一点的写法或改其他组件
                     }
                 }
                 Button {

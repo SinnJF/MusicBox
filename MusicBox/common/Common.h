@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <qstring>
+#include <sstream>
 
 //判断是否存在某元素
 template <typename T>
@@ -62,6 +63,7 @@ template<typename T>
 std::string join(T list, std::string split)
 {
     std::string out;
+    if(list.size() < 1) return out;
 	for (int i = 0; i < list.size() - 1; i++)
 	{
 		out += list[i] + split;

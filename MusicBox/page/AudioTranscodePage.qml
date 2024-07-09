@@ -5,7 +5,7 @@ import Qt.labs.platform 1.1
 
 Item {
     //signal getTargetPathSig(string path, int mode)  //mode == 0 files ,== 1 folder
-    signal transcodeSig(srcPaths: string, string taregtPath)
+    signal transcodeSig(string srcPaths, string taregtPath)
 
     ColumnLayout {
         anchors.fill: parent
@@ -68,7 +68,7 @@ Item {
             }
             delegate: SwipeDelegate {
                 id: listDelegate
-                width: parent.width     //todo: 删除的时候会输出警告width为null
+                width: parent.width     //TODO: 删除的时候会输出警告width为null
 
                 text: modelData
 
@@ -94,7 +94,7 @@ Item {
 
 
                 ListView.onRemove: SequentialAnimation {
-                    /*todo: 有警告，暂时没搞懂什么原因
+                    /*TODO: 有警告，暂时没搞懂什么原因
                     qt.qml.defaultmethod: Assigning an object to a signal handler is deprecated.
                     Instead, create the object, give it an id, and call the desired slot from the signal handler.*/
                     PropertyAnimation   //duration设置为0的话跟下面的Action差不多
@@ -145,17 +145,17 @@ Item {
         }
     }
 
-    FileDialog {        //todo: bug当以文件夹模式打开，下一次以文件模式打开并不能多选文件且文件过滤器不起作用
+    FileDialog {        //TODO: bug当以文件夹模式打开，下一次以文件模式打开并不能多选文件且文件过滤器不起作用
         id: fileDialog
         title: qsTr("选择所需转换的文件/文件夹")
         fileMode: FileDialog.OpenFiles
-        nameFilters: ["kugou files (*.kgm *.kge *.flac *.kgtemp)"]
+        nameFilters: ["kugou files (*.kgm *.kge *.flac *.kgtemp)", "netease files (*.ncm)"]
         onAccepted: {
             selectedFilesModel.clear()             //清空原来的元素
             for(var i in files)
             {
                 var path = files[i].toString().replace("file:///", "")
-                selectedFilesModel.insert(0, {path : path})
+                selectedFilesModel.insert(0, {path : path}) //BUG:特殊符号会自动转成ascii码如#->%23
             }
             console.log(files)
             console.log("selected " + selectedFilesModel.count + " files");
@@ -194,7 +194,7 @@ Item {
 
     function handleResultRet(result){
         console.log("qml get: " + result)
-        popupContent.text = result  //todo:看下id的作用范围
+        popupContent.text = result  //TODO:看下id的作用范围
         infoPopup.open()
     }
 

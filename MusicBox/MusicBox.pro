@@ -15,10 +15,9 @@ CONFIG(release, debug | release){
 SOURCES += \
         controller/TranscodeManager.cpp \
         main.cpp \
-        model/FunModel/transcode/KGMusicConverter.cpp \
-        model/FunModel/transcode/MusicConverter.cpp \
-        model/FunModel/transcode/MusicFactory.cpp \
-        model/FunModel/transcode/NEMusicConverter.cpp
+        model/FunModel/convert/KGMusicConverter.cpp \
+        model/FunModel/convert/MusicFactory.cpp \
+        model/FunModel/convert/NEMusicConverter.cpp
 
 RESOURCES += qml.qrc
 
@@ -39,10 +38,11 @@ HEADERS += \
     controller/TranscodeManager.h \
     model/DataModel/KGMusicData.h \
     model/DataModel/NCMusicData.h \
-    model/FunModel/transcode/KGMusicConverter.h \
-    model/FunModel/transcode/MusicConverter.h \
-    model/FunModel/transcode/MusicFactory.h \
-    model/FunModel/transcode/NEMusicConverter.h
+    model/FunModel/convert/Converter.h \
+    model/FunModel/convert/ConverterFactory.h \
+    model/FunModel/convert/KGMusicConverter.h \
+    model/FunModel/convert/MusicFactory.h \
+    model/FunModel/convert/NEMusicConverter.h
 
 INCLUDEPATH += \
     E:\Projects\taglib-1.13.1 \
@@ -54,7 +54,10 @@ INCLUDEPATH += \
     "D:\Program Files (x86)\OpenSSL\include" \
     libs\release\zlib \
     libs\release\taglib \
-    libs\release\openssl
+    libs\release\openssl \
+    libs\debug\zlib \
+    libs\debug\taglib \
+    libs\debug\openssl
 
 #LIBPATH += libs
 #CONFIG(debug, debug | release)
@@ -74,45 +77,45 @@ INCLUDEPATH += $$PWD/libs/release/openssl
 DEPENDPATH += $$PWD/libs/release/openssl
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibcrypto
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibcryptod
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibcrypto
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibssl
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibssld
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltagd
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibssl
 
 INCLUDEPATH += $$PWD/libs/release/taglib
 DEPENDPATH += $$PWD/libs/release/taglib
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltagd
+
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/libtag.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/libtagd.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/taglib/libtagd.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/tag.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/tagd.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/taglib/tagd.lib
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag_c
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag_cd
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltag_cd
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/libtag_c.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/libtag_cd.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/taglib/libtag_cd.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/tag_c.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/taglib/tag_cd.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/taglib/tag_cd.lib
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/zlib/ -lzlib
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/release/zlib/ -lzlibd
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/zlib/ -lzlibd
 
 INCLUDEPATH += $$PWD/libs/release/zlib
 DEPENDPATH += $$PWD/libs/release/zlib
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/libzlib.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/libzlibd.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/zlib/libzlibd.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/zlib.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/zlibd.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/zlib/zlibd.lib
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/zlib/ -lzlibstatic
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/release/zlib/ -lzlibstaticd
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/libzlibstatic.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/libzlibstaticd.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/zlib/libzlibstaticd.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/zlibstatic.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/release/zlib/zlibstaticd.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libs/debug/zlib/zlibstaticd.lib
