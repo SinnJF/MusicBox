@@ -8,7 +8,6 @@
 
 int main(int argc, char *argv[])
 {
-    qDebug() << "???";
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -21,6 +20,13 @@ int main(int argc, char *argv[])
     QThread transcodeThread;
     transcodeManager.moveToThread(&transcodeThread);
     transcodeThread.start();
+
+    QObject::connect(&app, &QGuiApplication::destroyed, [&]{//BUG:退出程序时报线程仍未退出，后崩溃。
+        qDebug() << "transcodethread quit...";
+        transcodeThread.quit();
+        transcodeThread.wait();
+        transcodeThread.deleteLater();
+    });
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("transcodeManager", &transcodeManager);

@@ -12,6 +12,8 @@ public:
 
     Converter* createConverter(MusicType type);
 
+private:
+
 signals:
 
 };

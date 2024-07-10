@@ -54,7 +54,7 @@ Item {
                 }
             }
         }
-        ListView {
+        ListView {//WARNING:item过多时，view的上下会与其它组件重合
             id: toBeDealsList
 
             Layout.fillWidth: true
@@ -145,7 +145,7 @@ Item {
         }
     }
 
-    FileDialog {        //TODO: bug当以文件夹模式打开，下一次以文件模式打开并不能多选文件且文件过滤器不起作用
+    FileDialog {
         id: fileDialog
         title: qsTr("选择所需转换的文件/文件夹")
         fileMode: FileDialog.OpenFiles
@@ -154,10 +154,11 @@ Item {
             selectedFilesModel.clear()             //清空原来的元素
             for(var i in files)
             {
-                var path = files[i].toString().replace("file:///", "")
-                selectedFilesModel.insert(0, {path : path}) //BUG:特殊符号会自动转成ascii码如#->%23
+                var url = decodeURIComponent(files[i])
+                var path = url.toString().replace("file:///", "")
+                selectedFilesModel.insert(0, {path : path})
             }
-            console.log(files)
+            //console.log(files)
             console.log("selected " + selectedFilesModel.count + " files");
 
             targetPath.text = transcodeManager.getTargetPath(folder.toString(), 0)
@@ -181,25 +182,35 @@ Item {
 
     Popup {
         id: infoPopup
+        padding: 10
+        modal: true
+        focus: true
         anchors.centerIn: Overlay.overlay
         closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
-        contentItem: Text {
+        contentItem: Rectangle {
             id: popupContent
             width: parent.width / 5 * 3
             height: parent.height / 5
-            text: qsTr("content")
-            verticalAlignment: Text.AlignVCenter
+            color: Qt.gray
+            Label {
+                id: lab1
+                anchors.centerIn: parent
+                font.bold: true
+                font.pointSize: 20
+                text: "conent"
+            }
+            //verticalAlignment: Text.AlignVCenter
         }
     }
 
     function handleResultRet(result){
         console.log("qml get: " + result)
-        popupContent.text = result  //TODO:看下id的作用范围
+        lab1.text = result  //TODO:看下id的作用范围
         infoPopup.open()
     }
 
-    Component.onCompleted: {
-        transcodeManager.resultRetSig.connect(handleResultRet)
-    }
+//    Component.onCompleted: {
+//        transcodeManager.resultRetSig.connect(handleResultRet)
+//    }
 }
 

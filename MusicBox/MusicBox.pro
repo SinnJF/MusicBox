@@ -15,6 +15,7 @@ CONFIG(release, debug | release){
 SOURCES += \
         controller/TranscodeManager.cpp \
         main.cpp \
+        model/FunModel/convert/ConverterFactory.cpp \
         model/FunModel/convert/KGMusicConverter.cpp \
         model/FunModel/convert/MusicFactory.cpp \
         model/FunModel/convert/NEMusicConverter.cpp

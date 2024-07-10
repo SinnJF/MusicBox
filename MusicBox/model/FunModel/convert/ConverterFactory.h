@@ -14,11 +14,13 @@ public:
     enum class LyricType { Undefined, KGLyric, NELyric };
     Q_ENUM(LyricType)
 
+    const static QStringList KGMusicSuffix;
+    const static QStringList NEMusicSuffix;
+
     ConverterFactory(){}
     virtual ~ConverterFactory(){}
 
     virtual Converter* createConverter(MusicType type) = 0;
 
 };
-
 #endif // CONVERTERFACTORY_H

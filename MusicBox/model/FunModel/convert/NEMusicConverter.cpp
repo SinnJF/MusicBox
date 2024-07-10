@@ -32,19 +32,15 @@ NEMusicConverter::NEMusicConverter()
 
 void NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 {
-    qDebug() << "aaaaaaaa" << srcFile << dstPath;
     m_originalFilePath = srcFile.toStdWString();
     m_outputPath = dstPath.toStdWString();
     std::ifstream f(m_originalFilePath, std::ios::binary);
     if (!f) {
-        qDebug() << "a1";throw std::runtime_error("打开文件失败"); return; };
+        throw std::runtime_error("打开文件失败"); return; };
 
-    qDebug() << "a2";
     std::stringstream ms;
     ms << f.rdbuf();
     f.close();
-
-    qDebug() << "bbbbbb";
 
     CheakHeader(ms);
     auto RC4_key = GetRC4Key(ms);
@@ -53,13 +49,10 @@ void NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
     ms.seekg(5, std::ios::cur);
     //获取封面
     info.cover = GetImage(ms);
-    qDebug() << "cccccc";
 
     //拼接文件名
     if (info.artist.size() > 3) { info.artist = { info.artist[0],info.artist[1],info.artist[2],"..." }; };
-    qDebug() << "c0";
     std::string name = (info.musicName + " - " + join(info.artist, (std::string)",") + "." + info.format);
-    qDebug() << "c1";
 
     //替换为全角字符,防止出错
     name = replace_(name, "?", { "？" });
@@ -71,14 +64,12 @@ void NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
     name = replace_(name, "\\", { "＼" });
     name = replace_(name, "|", { "｜" });
     name = replace_(name, "\"", "＂");
-    qDebug() << "c2";
 
     //utf-8文件名
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring wideFilename = converter.from_bytes(name);
 
     fs::path outputPath = m_outputPath;
-    qDebug() << "c3";
 
     fs::path outoriginalFilePath;
     if (outputPath.empty())
@@ -90,15 +81,12 @@ void NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
         outoriginalFilePath = m_outputPath.wstring() + (L"\\" + wideFilename);
     }
 
-    qDebug() << "ddddddd";
     //正式解密文件
     std::ofstream file(outoriginalFilePath, std::ios::out | std::ios::binary);
     if (!file.good()) { throw std::runtime_error("write file error."); }
     DecodeAudio(ms, file, RC4_key);
 
-    qDebug() << "eeeeeeee";
     SetMusicInfo(outoriginalFilePath, info, m_write163Key);
-    qDebug() << "fffffff";
 }
 
 void NEMusicConverter::CheakHeader(std::stringstream &ms)
@@ -235,6 +223,7 @@ void NEMusicConverter::DecodeAudio(std::stringstream &ms, std::ofstream &f, cons
     f.close();
 }
 
+//BUG:转出的歌名专辑等内容编码有问题
 void NEMusicConverter::SetMusicInfo(fs::path &originalFilePath, musicInfo &info, bool write163Key)
 {
     using namespace TagLib;

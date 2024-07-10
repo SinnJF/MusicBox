@@ -46,25 +46,38 @@ QString TranscodeManager::getTargetPath(QUrl url, int mode)
 
 void TranscodeManager::test(QStringList srcFiles, QString destFile)
 {
-    qDebug() << "test " << QThread::currentThreadId() << tr("带转换目标: ") << srcFiles.size();
-    QTime time;
+    qDebug() << "test " << QThread::currentThreadId() << tr("待转换目标: ") << srcFiles.size();
+    int successCnt = 0, failCnt = 0;
+    QTime time = QTime::currentTime();
     ConverterFactory* factory = new MusicFactory();
     Converter* convertor = Q_NULLPTR;
     for(const auto &srcFile : srcFiles)
     {
-        qDebug() << "11111" << srcFile;
         QFileInfo info(srcFile);//TODO:临时测试，待修改
-        if(info.suffix() == "kgm") convertor = factory->createConverter(ConverterFactory::MusicType::KGMusic);
-        else if(info.suffix() == "ncm") convertor = factory->createConverter(ConverterFactory::MusicType::NEMusic);
-        else factory->createConverter(ConverterFactory::MusicType::Undefined);
-        qDebug() << "2222";
-        convertor->Decrypt(srcFile, destFile);//TODO::多测试下是需要towstdstring还是只需tostdstring
+        if(ConverterFactory::KGMusicSuffix.contains(info.suffix()))
+            convertor = factory->createConverter(ConverterFactory::MusicType::KGMusic);
+        else if(ConverterFactory::NEMusicSuffix.contains(info.suffix()))
+            convertor = factory->createConverter(ConverterFactory::MusicType::NEMusic);
+        else
+            convertor = factory->createConverter(ConverterFactory::MusicType::Undefined);
+        try {
+            ++successCnt;
+            convertor->Decrypt(srcFile, destFile);//TODO::多测试下是需要towstdstring还是只需tostdstring==
+        }
+        catch(std::exception& e){
+            ++failCnt;
+            qWarning() << e.what();
+        }
+        catch (...) {
+            ++failCnt;
+            qWarning() << tr("decrypt exception");
+        }
 
-        qDebug() << "3333";
         convertor->deleteLater();
-        qDebug() << "4444";
         convertor = Q_NULLPTR;
     }
-    qDebug() << "transcode cross: " << QTime::currentTime().msecsTo(time) << " ms...";
-    emit resultRetSig("resultRetSig");
+    QString str = QString("success: %1 fail: %2").arg(successCnt).arg(failCnt);
+    qInfo() << str;
+    qDebug() << "transcode cross: " << time.msecsTo(QTime::currentTime()) << " ms...";
+    emit resultRetSig(str);
 }
