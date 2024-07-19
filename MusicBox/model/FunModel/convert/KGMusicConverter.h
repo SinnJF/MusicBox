@@ -8,9 +8,10 @@
 struct musicInfo;
 class KGMusicConverter : public Converter
 {
+    Q_OBJECT
 public:
     explicit KGMusicConverter();
-    void Decrypt(const QString srcFile, const QString dstPath);
+    bool Decrypt(const QString srcFile, const QString dstPath);
 
 private:
     enum MType { VPR, OTHER };

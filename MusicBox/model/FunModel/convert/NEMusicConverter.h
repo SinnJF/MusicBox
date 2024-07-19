@@ -8,9 +8,10 @@
 struct musicInfo;
 class NEMusicConverter : public Converter
 {
+    Q_OBJECT
 public:
     explicit NEMusicConverter();
-    void Decrypt(const QString srcFile, const QString dstPath);
+    bool Decrypt(const QString srcFile, const QString dstPath);
 
 private:
     std::filesystem::path m_originalFilePath;

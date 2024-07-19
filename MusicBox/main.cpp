@@ -3,8 +3,7 @@
 #include <QQmlContext>
 #include <QThread>
 
-#include "controller/TranscodeManager.h"
-
+#include "controller/AppService.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,21 +14,10 @@ int main(int argc, char *argv[])
 
     qDebug() << "main threadid: " << QThread::currentThreadId();
     //TranscodeManager
-    TranscodeManager transcodeManager;
-    QObject::connect(&transcodeManager, &TranscodeManager::startSig, &transcodeManager, &TranscodeManager::test, Qt::QueuedConnection);
-    QThread transcodeThread;
-    transcodeManager.moveToThread(&transcodeThread);
-    transcodeThread.start();
-
-    QObject::connect(&app, &QGuiApplication::destroyed, [&]{//BUG:退出程序时报线程仍未退出，后崩溃。
-        qDebug() << "transcodethread quit...";
-        transcodeThread.quit();
-        transcodeThread.wait();
-        transcodeThread.deleteLater();
-    });
+    AppService appService;
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("transcodeManager", &transcodeManager);
+    engine.rootContext()->setContextProperty("appService", &appService);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

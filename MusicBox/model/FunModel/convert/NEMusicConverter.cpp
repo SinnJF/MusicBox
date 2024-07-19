@@ -30,13 +30,13 @@ NEMusicConverter::NEMusicConverter()
 
 }
 
-void NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
+bool NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 {
     m_originalFilePath = srcFile.toStdWString();
     m_outputPath = dstPath.toStdWString();
     std::ifstream f(m_originalFilePath, std::ios::binary);
     if (!f) {
-        throw std::runtime_error("打开文件失败"); return; };
+        throw std::runtime_error("打开文件失败"); return false; };
 
     std::stringstream ms;
     ms << f.rdbuf();
@@ -83,10 +83,12 @@ void NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 
     //正式解密文件
     std::ofstream file(outoriginalFilePath, std::ios::out | std::ios::binary);
-    if (!file.good()) { throw std::runtime_error("write file error."); }
+    if (!file.good()) { throw std::runtime_error("write file error."); return false;}
     DecodeAudio(ms, file, RC4_key);
 
+
     SetMusicInfo(outoriginalFilePath, info, m_write163Key);
+    return true;
 }
 
 void NEMusicConverter::CheakHeader(std::stringstream &ms)
@@ -236,9 +238,9 @@ void NEMusicConverter::SetMusicInfo(fs::path &originalFilePath, musicInfo &info,
         img->setType(FLAC::Picture::FrontCover);
         file.addPicture(img);
         auto xiph = file.xiphComment(true);
-        if (write163Key)xiph->addField("DESCRIPTION", std::string(info.ncmkey, String::UTF8));
-        xiph->addField("ALBUM", std::string(info.album, String::UTF8));
-        xiph->addField("ARTIST", std::string(join(info.artist, ";"), String::UTF8));
+        if (write163Key)xiph->addField("DESCRIPTION", String(info.ncmkey, String::UTF8));
+        xiph->addField("ALBUM", String(info.album, String::UTF8));
+        xiph->addField("ARTIST", String(join(info.artist, ";"), String::UTF8));
 
         file.save();
     }
@@ -252,9 +254,9 @@ void NEMusicConverter::SetMusicInfo(fs::path &originalFilePath, musicInfo &info,
         img->setPicture(ByteVector(info.cover.data(), info.cover.length()));
         tag->removeFrames("APIC");
         tag->addFrame(img);
-        if (write163Key)tag->setComment(std::string(info.ncmkey, String::UTF8));
-        tag->setArtist(std::string(join(info.artist, ";"), String::UTF8));
-        tag->setAlbum(std::string(info.album, String::UTF8));
+        if (write163Key)tag->setComment(String(info.ncmkey, String::UTF8));
+        tag->setArtist(String(join(info.artist, ";"), String::UTF8));
+        tag->setAlbum(String(info.album, String::UTF8));
 
         file.save();
     }

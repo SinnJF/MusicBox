@@ -17,6 +17,7 @@
 
 #include "common/Common.h"
 
+#include <QFileInfo>
 #include <codecvt>
 
 namespace fs = std::filesystem;
@@ -26,12 +27,12 @@ KGMusicConverter::KGMusicConverter()
 
 }
 
-void KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
+bool KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 {
     m_originalFilePath = srcFile.toStdWString();
     m_outputPath = dstPath.toStdWString();
     std::ifstream f(m_originalFilePath, std::ios::binary);
-    if (!f) { throw std::runtime_error("打开文件失败"); return; };
+    if (!f) { throw std::runtime_error("打开文件失败"); return false; };
 
     //读入文件
     std::stringstream ms;
@@ -40,18 +41,23 @@ void KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 
     //临时文件
     fs::path tempFilePath;
+    QFileInfo srcFileInfo(srcFile);
     if (m_outputPath.empty())
     {
-        tempFilePath = CreateTempFile(m_originalFilePath.parent_path());
+        //tempFilePath = CreateTempFile(m_originalFilePath.parent_path());
+        QString s = QString("/") + srcFileInfo.fileName();
+        tempFilePath = m_originalFilePath.parent_path().append(s.toStdWString());
     }
     else
     {
-        tempFilePath = CreateTempFile(m_outputPath);
+        //tempFilePath = CreateTempFile(m_outputPath);
+        QString s = srcFileInfo.fileName();
+        tempFilePath = m_outputPath.append(s.toStdWString());
     }
     std::ofstream fs(tempFilePath, std::ios::out | std::ios_base::binary);
 
     //检查文件头
-    if (!CheakHeader(ms)) { f.close(); Save(m_originalFilePath, ms, tempFilePath, fs); return; };
+    if (!CheakHeader(ms)) { f.close(); Save(m_originalFilePath, ms, tempFilePath, fs); return false; };
     //头部数据长度
     int length = HeaderLength(ms);
     //key
@@ -63,6 +69,7 @@ void KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 
     auto info = GetMusicInfo(tempFilePath);
     Rename(info, m_originalFilePath, tempFilePath);
+    return true;
 }
 
 bool KGMusicConverter::CheakHeader(std::stringstream &ms)
@@ -72,7 +79,7 @@ bool KGMusicConverter::CheakHeader(std::stringstream &ms)
     if (strncmp(magic_hander, (char*)KGMusicData::VprHeader, 16) == 0) { H = VPR; return true; };
     if (strncmp(magic_hander, (char*)KGMusicData::KgmHeader, 16) == 0) { H = OTHER; return true; };
     if ((strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0) or (strncmp(magic_hander, (char*)MP3_HEADER, 3) == 0)) { return false; }
-    throw std::runtime_error("文件已损坏或不是一个支持的文件");
+    //throw std::runtime_error("文件已损坏或不是一个支持的文件");
 }
 
 int KGMusicConverter::HeaderLength(std::stringstream &ms)
@@ -160,7 +167,7 @@ void KGMusicConverter::Rename(const musicInfo &info, const fs::path &originalFil
     //空文件名处理
     if ("" == info.musicName)
     {
-        name = ("[未命名]" + std::string((char*)originalFilePath.filename().u8string().c_str()) + "." + info.format);
+        name = ("[未命名]" + std::string((char*)originalFilePath.filename().stem().u8string().c_str()) + " - " + join(artist, (std::string)",") + "." + info.format);
     }
     else
     {

@@ -9,7 +9,7 @@ class Converter : public QObject
     Q_OBJECT
 public:
     explicit Converter(QObject *parent = nullptr){}
-    virtual inline void Decrypt(const QString, const QString){ qWarning() << tr("Undefined Converter."); };
+    virtual inline bool Decrypt(const QString, const QString){ qWarning() << tr("virtual Converter."); return false;};
 //    virtual ~MusicConverter() = 0;
 
 };
