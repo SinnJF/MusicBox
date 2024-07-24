@@ -2,8 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>images/ironman.png</file>
-        <file>page/AudioTranscodePage.qml</file>
         <file>images/Check.png</file>
-        <file>images/radio-checked-disabled.png</file>
+        <file>view/page/AudioTranscodePage.qml</file>
+        <file>view/item/RollLabel.qml</file>
     </qresource>
 </RCC>

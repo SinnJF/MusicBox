@@ -3,7 +3,8 @@ import QtQuick.Window 2.2
 import QtQml.Models 2.1
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.12
-import "page"   //目录结构
+import "view/item"   //目录结构
+import "view/page"
 
 ApplicationWindow {
     id: mainWindow
@@ -25,6 +26,8 @@ ApplicationWindow {
 
         AudioTranscodePage {    //名称对应文件名
             id: audioTranscodePage
+            width: mainWindow.width
+            height: mainWindow.height
             Component.onCompleted: console.log(width + "," + height)
         }
 

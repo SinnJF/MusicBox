@@ -1,6 +1,8 @@
 build-MusicBox-Desktop_Qt_5_15_2_MSVC2019_64bit-Debug/
 build-MusicBox-Desktop_Qt_6_3_2_MSVC2019_64bit-Debug/
 build-MusicBox-Desktop_Qt_6_3_2_MSVC2019_64bit-Release/
+build-MusicBox-Qt_5_15_2_Clang_Multi_Abi-Debug/
+build-MusicBox-Qt_5_15_2_Clang_Multi_Abi-Release/
 .vscode/
 MusicBox/release
 MusicBox/debug

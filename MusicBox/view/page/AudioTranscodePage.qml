@@ -2,6 +2,7 @@
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.5
 import Qt.labs.platform 1.1
+import "../item"
 
 Item {
     ColumnLayout {
@@ -73,136 +74,65 @@ Item {
 //            focus: true
             model: ListModel {
                 id: selectedFilesModel
-                //ListElement {path:"path",isDone:false}
+                //ListElement {path:"path",isDone:false,musicType:0}
             }
             delegate: SwipeDelegate {
                 id: listDelegate
                 width: seleListView.width
-                height: 30
+                height: 40
                 padding: 5
 
-                //property bool isCurr: ListView.isCurrentItem
+                //property string bgClr
                 //text: modelData
                 contentItem: Rectangle {
-                    id: contentRect
+                    id: contentItem
                     width: seleListView.width
                     //height: 25
-                    color: model.isDone ? "#aaf9a9ff" : "transparent"
-                    clip: true
-                    Rectangle {
-                        id: leftMask
-                        height: parent.height
-                        width: height
-                        anchors.left: parent.left
-                        rotation: -90
-                        opacity: 0
-                        z: 1
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: "#dfe4ea" }
-                            GradientStop { position: 1; color: "#00dfe4ea" }
+                    RowLayout {
+                        spacing: 10
+                        anchors.fill: parent
+
+                        Image {
+                            id: icon
+                            source: getIconPath(model.musicType)
+                            Layout.alignment: Qt.AlignVCenter
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: console.log("label: " + contentLab.implicitWidth + " content:" + content.width + " contentItem:" + contentItem.width)
+                            }
+                        }
+                        RollLabel {
+                            id: rollLabel
+                            height: icon.height
+                            text: model.path
+                            color: model.isDone ? getClr(model.musicType) : "transparent"
+                        }
+                        Image {
+                            id: checkImage
+                            source: "qrc:/res/svg/Done.svg"
+                            height: icon.height / 2
+                            width: height
+                            Layout.alignment: Qt.AlignVCenter
+                            fillMode: Image.PreserveAspectFit
+                            visible: model.isDone
                         }
                     }
-                    Label {
-                        id:contentLab
-                        height: 25
-                        color: "black"
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignLeft
-                        text: model.path
-                    }
-                    Image {
-                        //anchors.left: contentLab.right
-                        anchors.right: contentRect.right
-                        id: checkImage
-                        source: "qrc:/images/Check.png"
-                        height: sourceSize.height
-                        width: sourceSize.width
-                        anchors.verticalCenter: parent.verticalCenter
-                        //fillMode: Image.PreserveAspectFit
-                        visible: model.isDone
-                    }
-                    Rectangle {
-                        id: rightMask
-                        height: parent.height
-                        width: height
-                        anchors.right: parent.right
-                        rotation: 90
-                        opacity: 1
-                        z: 1
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: "#dfe4ea" }
-                            GradientStop { position: 1; color: "#00dfe4ea" }
-                        }
-                    }
-                    SequentialAnimation {
-                        running: contentLab.implicitWidth > contentItem.width
-                        loops: Animation.Infinite
-                        property int dr: 2000
-                        PauseAnimation {
-                            duration: 1000
-                        }
-                        ParallelAnimation{
-                            XAnimator {
-                                target: contentLab
-                                from: 0
-                                to: contentItem.width - contentLab.implicitWidth
-                                duration: 2000
-                            }
-                            OpacityAnimator {
-                                target: leftMask
-                                from: 0
-                                to: 1
-                                duration: 2000
-                            }
-                            OpacityAnimator {
-                                target: rightMask
-                                from: 1
-                                to: 0
-                                duration: 2000
-                            }
-                        }
-                        PauseAnimation {
-                            duration: 1000
-                        }
-                        ParallelAnimation {
-                            XAnimator {
-                                target: contentLab
-                                from: contentItem.width - contentLab.implicitWidth
-                                to: x
-                                duration: 2000
-                            }
-                            OpacityAnimator {
-                                target: leftMask
-                                from: 1
-                                to: 0
-                                duration: 2000
-                            }
-                            OpacityAnimator {
-                                target: rightMask
-                                from: 0
-                                to: 1
-                                duration: 2000
-                            }
-                        }
-                    }
+                }
+
+                swipe.right: Image {
+                    id: deleteLabel
+                    height: icon.height / 2
+                    width: icon.height
+                    anchors.right: parent.right
+                    source: "qrc:/res/svg/Cancel.svg"
+                    anchors.verticalCenter: parent.verticalCenter
+                    fillMode: Image.PreserveAspectFit
+                    SwipeDelegate.onClicked: selectedFilesModel.remove(index)
                 }
 
                 onClicked: {
                     seleListView.currentIndex = index;
                     console.log("index: " + index);
-                }
-
-                swipe.right: Label {
-                    id: deleteLabel
-                    height: parent.height
-                    anchors.right: parent.right
-                    text: qsTr("删除")
-                    color: "white"
-                    verticalAlignment: Label.AlignVCenter
-                    SwipeDelegate.onClicked: selectedFilesModel.remove(index)
-                    background: Rectangle {
-                        color: deleteLabel.SwipeDelegate.pressed ? Qt.darker("#ff0000", 1.1) : "#ff0000"
-                    }
                 }
 
                 SequentialAnimation {
@@ -249,7 +179,7 @@ Item {
             for(var i in files) {
                 var url = decodeURIComponent(files[i])
                 var path = url.toString().replace("file:///", "")
-                selectedFilesModel.insert(0, {path : path, isDone: false})
+                selectedFilesModel.insert(0, {path : path, isDone: false, musicType: 0})
             }
             //console.log(files)
             console.log("selected " + selectedFilesModel.count + " files");
@@ -266,7 +196,7 @@ Item {
             selectedFilesModel.clear()
             var url = decodeURIComponent(folder)
             var path = url.toString().replace("file:///", "")
-            selectedFilesModel.insert(0, {path : path, isDone: false})
+            selectedFilesModel.insert(0, {path : path, isDone: false, musicType: 0})
             appService.getTargetFolderSig(folder, 1)
         }
     }
@@ -281,13 +211,14 @@ Item {
         contentItem: Rectangle {
             id: popupContent
             width: parent.width / 5 * 3
-            height: parent.height / 5
-            color: "#b0c0ac"
+            height: parent.height / 7
+            radius: 10
+            color: "white"
             Label {
                 id: lab1
                 anchors.centerIn: parent
                 font.bold: true
-                font.pointSize: 20
+                font.pointSize: 11
                 text: "conent"
             }
             //verticalAlignment: Text.AlignVCenter
@@ -307,16 +238,36 @@ Item {
         }
 
         function onRetMsgSig(result){
-            console.log("qml get: " + result)
+            console.log(result)
             lab1.text = result
             infoPopup.open()
         }
 
-        function onRetSig(retMap){
-            for(var ret in retMap)
-            {
-                selectedFilesModel.setProperty(ret, "isDone", retMap[ret]);
+        function onRetSig(retList){
+            if(retList.length === 3) {
+                selectedFilesModel.setProperty(retList[0], "isDone", retList[1]);
+                selectedFilesModel.setProperty(retList[0], "musicType", retList[2]);
+                //console.log(retList[0] + retList[1] + retList[2]);
             }
+        }
+
+    }
+
+    function getIconPath(type){
+        switch(type){
+        case 0: return "qrc:/res/svg/Music.svg";
+        case 1: return "qrc:/res/svg/KG.svg";
+        case 2: return "qrc:/res/svg/NE.svg";
+        default: return "qrc:/res/svg/Music.svg";
+        }
+    }
+
+    function getClr(type) {
+        switch(type){
+        case 0: return "#aae0e0e0";
+        case 1: return "#aa66b2ff";
+        case 2: return "#aaffcccc";
+        default: return "#aae0e0e0";
         }
     }
 }

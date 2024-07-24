@@ -3,6 +3,7 @@
 #include <QPair>
 #include <QMap>
 #include <QVariant>
+#include <QSharedPointer>
 
 #include "TranscodeManager.h"
 #include "model/FunModel/convert/Converter.h"
@@ -74,30 +75,44 @@ void TranscodeManager::handleMusicFiles(QVariant filesVar, QString destFile)
     qDebug() << "test " << QThread::currentThreadId() << tr("待转换目标: ") << files.size();
     int successCnt = 0, failCnt = 0;
     QTime time = QTime::currentTime();
-    ConverterFactory* factory = new MusicFactory();
+    QScopedPointer<ConverterFactory> factory(new MusicFactory());
     Converter* convertor = Q_NULLPTR;
     //QList<Converter*> convertors(srcFiles.size());
 
-    using MPair = QPair<int, bool>;
-    QFutureSynchronizer<MPair> futures;
+    QFutureSynchronizer<void> futures;
     for(auto iter = files.constKeyValueBegin(); iter != files.constKeyValueEnd(); iter++)
     {
         QFileInfo info(iter->second.toString());//TODO:临时测试，待修改
-        if(ConverterFactory::KGMusicSuffix.contains(info.suffix()))
-            convertor = factory->createConverter(ConverterFactory::MusicType::KGMusic);
-        else if(ConverterFactory::NEMusicSuffix.contains(info.suffix()))
-            convertor = factory->createConverter(ConverterFactory::MusicType::NEMusic);
+        QString suffix = info.suffix();
+        using FMusicType = ConverterFactory::MusicType;
+        FMusicType mType;
+        if(ConverterFactory::KGMusicSuffix.contains(suffix))
+        {
+            mType = FMusicType::KGMusic;
+            convertor = factory->createConverter(FMusicType::KGMusic);
+        }
+        else if(ConverterFactory::NEMusicSuffix.contains(suffix))
+        {
+            mType = FMusicType::NEMusic;
+            convertor = factory->createConverter(FMusicType::NEMusic);
+        }
         else
-            convertor = factory->createConverter(ConverterFactory::MusicType::Undefined);
+        {
+            mType = FMusicType::Undefined;
+            convertor = factory->createConverter(FMusicType::Undefined);
+        }
         try {
             ++successCnt;
             //convertor->Decrypt(srcFile, destFile);//TODO::多测试下是需要towstdstring还是只需tostdstring
             futures.addFuture(
-                QtConcurrent::run([=] () -> MPair {
+                QtConcurrent::run([=] () {
                 bool f = convertor->Decrypt(iter->second.toString(), destFile);
                 convertor->deleteLater();
-                MPair ret(iter->first.toInt(),f);
-                return ret;
+                QVariantList retList(3);    //int index; bool result; MusicType type;
+                retList[0] = iter->first.toInt();
+                retList[1] = f;
+                retList[2] = QVariant::fromValue(mType);
+                emit retMsgSig(QVariant::fromValue(retList));
              }));
         }
         catch(std::exception& e){
@@ -108,28 +123,12 @@ void TranscodeManager::handleMusicFiles(QVariant filesVar, QString destFile)
             ++failCnt;
             qWarning() << tr("decrypt exception");
         }
-
-        convertor->deleteLater();
-        convertor = Q_NULLPTR;
     }
     futures.waitForFinished();
-    QList<QFuture<MPair>> results = futures.futures();
-    QVariantMap retMap;
-    for(const auto &ret : results)
-    {
-        if(ret.isValid())
-        {
-            auto pair = ret.resultAt(0);
-            retMap.insert(QString::number(pair.first),
-                QVariant::fromValue(pair.second));
-        }
-    }
-    factory->deleteLater();
 
     QString str = QString("success: %1 fail: %2").arg(successCnt).arg(failCnt);
     qInfo() << str;
     qDebug() << "transcode cross: " << time.msecsTo(QTime::currentTime()) << " ms...";
 
     emit retMsgSig(str);
-    emit retMsgSig(QVariant::fromValue(retMap));
 }
