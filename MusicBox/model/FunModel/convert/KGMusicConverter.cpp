@@ -1,26 +1,24 @@
 ﻿#include "KGMusicConverter.h"
 #include "model/DataModel/KGMusicData.h"
 
-#include <taglib/fileref.h>
-#include <taglib/tag.h>
-#include <taglib/toolkit/tpropertymap.h>
-#include <taglib/mpeg/mpegfile.h>
-#include <taglib/mpeg/id3v2/id3v2tag.h>
-#include <taglib/mpeg/id3v2/id3v2frame.h>
-#include <taglib/mpeg/id3v2/id3v2header.h>
-#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
-#include <taglib/flac/flacfile.h>
-#include <taglib/flac/flacpicture.h>
-#include <taglib/ogg/xiphcomment.h>
-#include <taglib/mpeg/id3v2/id3v2framefactory.h>
-#include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
+//#include <taglib/fileref.h>
+//#include <taglib/tag.h>
+//#include <taglib/toolkit/tpropertymap.h>
+//#include <taglib/mpeg/mpegfile.h>
+//#include <taglib/mpeg/id3v2/id3v2tag.h>
+//#include <taglib/mpeg/id3v2/id3v2frame.h>
+//#include <taglib/mpeg/id3v2/id3v2header.h>
+//#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
+//#include <taglib/flac/flacfile.h>
+//#include <taglib/flac/flacpicture.h>
+//#include <taglib/ogg/xiphcomment.h>
+//#include <taglib/mpeg/id3v2/id3v2framefactory.h>
+//#include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
 
 #include "common/Common.h"
 
 #include <QFileInfo>
 #include <codecvt>
-
-namespace fs = std::filesystem;
 
 KGMusicConverter::KGMusicConverter()
 {
@@ -29,9 +27,7 @@ KGMusicConverter::KGMusicConverter()
 
 bool KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
 {
-    m_originalFilePath = srcFile.toStdWString();
-    m_outputPath = dstPath.toStdWString();
-    std::ifstream f(m_originalFilePath, std::ios::binary);
+    std::ifstream f(srcFile.toStdString(), std::ios::binary);
     if (!f) { throw std::runtime_error("打开文件失败"); return false; };
 
     //读入文件
@@ -40,24 +36,14 @@ bool KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
     f.close();
 
     //临时文件
-    fs::path tempFilePath;
+    QString tempFilePath;
     QFileInfo srcFileInfo(srcFile);
-    if (m_outputPath.empty())
-    {
-        //tempFilePath = CreateTempFile(m_originalFilePath.parent_path());
-        QString s = QString("/") + srcFileInfo.fileName();
-        tempFilePath = m_originalFilePath.parent_path().append(s.toStdWString());
-    }
-    else
-    {
-        //tempFilePath = CreateTempFile(m_outputPath);
-        QString s = srcFileInfo.fileName();
-        tempFilePath = m_outputPath.append(s.toStdWString());
-    }
-    std::ofstream fs(tempFilePath, std::ios::out | std::ios_base::binary);
+    QString s = srcFileInfo.fileName();
+    tempFilePath = dstPath + s;
+    std::ofstream fs(tempFilePath.toStdString(), std::ios::out | std::ios_base::binary);
 
     //检查文件头
-    if (!CheakHeader(ms)) { f.close(); Save(m_originalFilePath, ms, tempFilePath, fs); return false; };
+    if (!CheakHeader(ms)) { f.close(); return false; };
     //头部数据长度
     int length = HeaderLength(ms);
     //key
@@ -68,7 +54,7 @@ bool KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
     DecodeAudio(ms, fs, key);
 
     auto info = GetMusicInfo(tempFilePath);
-    Rename(info, m_originalFilePath, tempFilePath);
+    renameWithInfo(info, srcFile, tempFilePath);
     return true;
 }
 
@@ -133,74 +119,62 @@ void KGMusicConverter::DecodeAudio(std::stringstream &ms, std::ofstream &f, cons
     f.close();
 }
 
-musicInfo KGMusicConverter::GetMusicInfo(fs::path originalFilePath)
+musicInfo KGMusicConverter::GetMusicInfo(QString filePath)
 {
-    using namespace TagLib;
+//    using namespace TagLib;
     musicInfo info;
-    std::ifstream file(originalFilePath);
-    char magic_hander[3];
-    file.read(magic_hander, 3);
-    if (strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0)
-    {
-        file.close();
-        info.format = "flac";
-    }
-    else
-    {
-        file.close();
-        info.format = "mp3";
-    }
-    FileRef f(originalFilePath.c_str());
-    auto tag = f.tag();
-    info.artist.push_back(tag->artist().to8Bit(true));
-    info.musicName = tag->title().to8Bit(true);
+//    std::ifstream file(filePath);
+//    char magic_hander[3];
+//    file.read(magic_hander, 3);
+//    if (strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0)
+//    {
+//        file.close();
+//        info.format = "flac";
+//    }
+//    else
+//    {
+//        file.close();
+//        info.format = "mp3";
+//    }
+//    FileRef f(originalFilePath.c_str());
+//    auto tag = f.tag();
+//    info.artist.push_back(tag->artist().to8Bit(true));
+//    info.musicName = tag->title().to8Bit(true);
     return info;
 }
 
-void KGMusicConverter::Rename(const musicInfo &info, const fs::path &originalFilePath, const fs::path &tempFilePath)
+void KGMusicConverter::renameWithInfo(const musicInfo &info, const QString filePath, const QString orgFilePath)
 {
     std::string name;
     std::vector<std::string> artist;
-    if (info.artist.size() > 3) { artist = { info.artist[0],info.artist[1],info.artist[2],"..." }; }
-    else { artist = info.artist; };
+    QStringList artists;
+    for(const std::string &a : artist)
+    {
+        artists.append(QString::fromStdString(a));
+    }
 
     //空文件名处理
+    QFileInfo fi(filePath);
+    QString str;
     if ("" == info.musicName)
     {
-        name = ("[未命名]" + std::string((char*)originalFilePath.filename().stem().u8string().c_str()) + " - " + join(artist, (std::string)",") + "." + info.format);
+        str = QString("[unknown]%1.%2")
+            .arg(fi.baseName())
+            .arg(QString::fromStdString(info.format));
     }
     else
     {
-        name = (info.musicName + " - " + join(artist, (std::string)",") + "." + info.format);
+        str = QString("%1 - %2.%3")
+            .arg(QString::fromStdString(info.musicName))
+            .arg(artists.join("、 "))
+            .arg(QString::fromStdString(info.format));
     }
+    name = str.toStdString();
 
-    //替换为全角字符,防止出错
-    name = replace_(name, "?", { "？" });
-    name = replace_(name, "*", {"＊"});
-    name = replace_(name, ":", { "：" });
-    name = replace_(name, "<", { "＜" });
-    name = replace_(name, ">", { "＞" });
-    name = replace_(name, "/", { "／" });
-    name = replace_(name, "\\", { "＼" });
-    name = replace_(name, "|", { "｜" });
-    name = replace_(name, "\"", "＂");
-
-    //utf-8文件名
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::wstring wideFilename = converter.from_bytes(name);
-
-    fs::path save_path = tempFilePath.parent_path().append(wideFilename);
-    rename(tempFilePath, save_path);
-}
-
-void KGMusicConverter::Save(const fs::path &originalFilePath, std::stringstream &ms, const fs::path &tempFilePath, std::ofstream &fs)
-{
-    auto info = GetMusicInfo(originalFilePath);
-
-    //复制文件
-    ms.seekg(0, std::ios_base::beg);
-    fs << ms.rdbuf();
-    fs.flush();
-    fs.close();
-    Rename(info, originalFilePath, tempFilePath);
+    fi.setFile(orgFilePath);
+    QString parentPath = fi.path();
+    if (!parentPath.endsWith("/")) {
+        parentPath += "/";
+    }
+    QFile::rename(orgFilePath, parentPath + QString::fromStdString(name));
 }

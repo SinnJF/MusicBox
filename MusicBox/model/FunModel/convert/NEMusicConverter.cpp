@@ -1,19 +1,19 @@
 ﻿#include "NEMusicConverter.h"
 #include "model/DataModel/NCMusicData.h"
 
-#include <taglib/fileref.h>
-#include <taglib/tag.h>
-#include <taglib/toolkit/tpropertymap.h>
-#include <taglib/mpeg/mpegfile.h>
-#include <taglib/mpeg/id3v2/id3v2tag.h>
-#include <taglib/mpeg/id3v2/id3v2frame.h>
-#include <taglib/mpeg/id3v2/id3v2header.h>
-#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
-#include <taglib/flac/flacfile.h>
-#include <taglib/flac/flacpicture.h>
-#include <taglib/ogg/xiphcomment.h>
-#include <taglib/mpeg/id3v2/id3v2framefactory.h>
-#include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
+//#include <taglib/fileref.h>
+//#include <taglib/tag.h>
+//#include <taglib/toolkit/tpropertymap.h>
+//#include <taglib/mpeg/mpegfile.h>
+//#include <taglib/mpeg/id3v2/id3v2tag.h>
+//#include <taglib/mpeg/id3v2/id3v2frame.h>
+//#include <taglib/mpeg/id3v2/id3v2header.h>
+//#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
+//#include <taglib/flac/flacfile.h>
+//#include <taglib/flac/flacpicture.h>
+//#include <taglib/ogg/xiphcomment.h>
+//#include <taglib/mpeg/id3v2/id3v2framefactory.h>
+//#include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
 
 #include "common/Cde.h"
 #include "common/Common.h"
@@ -23,18 +23,14 @@
 #include <QJsonValue>
 #include <QJsonArray>
 
-namespace fs = std::filesystem;
-
 NEMusicConverter::NEMusicConverter()
 {
 
 }
 
-bool NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
+bool NEMusicConverter::Decrypt(QString srcFile, QString dstPath)
 {
-    m_originalFilePath = srcFile.toStdWString();
-    m_outputPath = dstPath.toStdWString();
-    std::ifstream f(m_originalFilePath, std::ios::binary);
+    std::ifstream f(srcFile.toStdString(), std::ios::binary);
     if (!f) {
         throw std::runtime_error("打开文件失败"); return false; };
 
@@ -69,25 +65,15 @@ bool NEMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring wideFilename = converter.from_bytes(name);
 
-    fs::path outputPath = m_outputPath;
-
-    fs::path outoriginalFilePath;
-    if (outputPath.empty())
-    {
-        outoriginalFilePath = m_originalFilePath.parent_path().append(wideFilename);
-    }
-    else
-    {
-        outoriginalFilePath = m_outputPath.wstring() + (L"\\" + wideFilename);
-    }
+    QString dstFilePath = dstPath + QString::fromStdString(name);
 
     //正式解密文件
-    std::ofstream file(outoriginalFilePath, std::ios::out | std::ios::binary);
+    std::ofstream file(dstFilePath.toStdString(), std::ios::out | std::ios::binary);
     if (!file.good()) { throw std::runtime_error("write file error."); return false;}
     DecodeAudio(ms, file, RC4_key);
 
 
-    SetMusicInfo(outoriginalFilePath, info, m_write163Key);
+    //SetMusicInfo(outoriginalFilePath, info, m_write163Key);
     return true;
 }
 
@@ -226,38 +212,38 @@ void NEMusicConverter::DecodeAudio(std::stringstream &ms, std::ofstream &f, cons
 }
 
 //BUG:转出的歌名专辑等内容编码有问题
-void NEMusicConverter::SetMusicInfo(fs::path &originalFilePath, musicInfo &info, bool write163Key)
-{
-    using namespace TagLib;
-    if (info.format == "flac")
-    {
-        FLAC::File file(originalFilePath.c_str());
-        auto img = new FLAC::Picture();
-        img->setData(ByteVector(info.cover.data(), info.cover.length()));
-        img->setMimeType("image/jpeg");
-        img->setType(FLAC::Picture::FrontCover);
-        file.addPicture(img);
-        auto xiph = file.xiphComment(true);
-        if (write163Key)xiph->addField("DESCRIPTION", String(info.ncmkey, String::UTF8));
-        xiph->addField("ALBUM", String(info.album, String::UTF8));
-        xiph->addField("ARTIST", String(join(info.artist, ";"), String::UTF8));
+//void NEMusicConverter::SetMusicInfo(fs::path &originalFilePath, musicInfo &info, bool write163Key)
+//{
+//    using namespace TagLib;
+//    if (info.format == "flac")
+//    {
+//        FLAC::File file(originalFilePath.c_str());
+//        auto img = new FLAC::Picture();
+//        img->setData(ByteVector(info.cover.data(), info.cover.length()));
+//        img->setMimeType("image/jpeg");
+//        img->setType(FLAC::Picture::FrontCover);
+//        file.addPicture(img);
+//        auto xiph = file.xiphComment(true);
+//        if (write163Key)xiph->addField("DESCRIPTION", String(info.ncmkey, String::UTF8));
+//        xiph->addField("ALBUM", String(info.album, String::UTF8));
+//        xiph->addField("ARTIST", String(join(info.artist, ";"), String::UTF8));
 
-        file.save();
-    }
-    else
-    {
-        MPEG::File file(originalFilePath.c_str());
-        auto tag = file.ID3v2Tag(true);
-        auto img = new ID3v2::AttachedPictureFrame();
-        img->setMimeType("image/jpeg");
-        img->setType(ID3v2::AttachedPictureFrame::FrontCover);
-        img->setPicture(ByteVector(info.cover.data(), info.cover.length()));
-        tag->removeFrames("APIC");
-        tag->addFrame(img);
-        if (write163Key)tag->setComment(String(info.ncmkey, String::UTF8));
-        tag->setArtist(String(join(info.artist, ";"), String::UTF8));
-        tag->setAlbum(String(info.album, String::UTF8));
+//        file.save();
+//    }
+//    else
+//    {
+//        MPEG::File file(originalFilePath.c_str());
+//        auto tag = file.ID3v2Tag(true);
+//        auto img = new ID3v2::AttachedPictureFrame();
+//        img->setMimeType("image/jpeg");
+//        img->setType(ID3v2::AttachedPictureFrame::FrontCover);
+//        img->setPicture(ByteVector(info.cover.data(), info.cover.length()));
+//        tag->removeFrames("APIC");
+//        tag->addFrame(img);
+//        if (write163Key)tag->setComment(String(info.ncmkey, String::UTF8));
+//        tag->setArtist(String(join(info.artist, ";"), String::UTF8));
+//        tag->setAlbum(String(info.album, String::UTF8));
 
-        file.save();
-    }
-}
+//        file.save();
+//    }
+//}

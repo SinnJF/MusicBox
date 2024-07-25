@@ -3,6 +3,7 @@
 #include <QPair>
 #include <QMap>
 #include <QVariant>
+#include <QVariantList>
 #include <QSharedPointer>
 
 #include "TranscodeManager.h"
@@ -108,7 +109,8 @@ void TranscodeManager::handleMusicFiles(QVariant filesVar, QString destFile)
                 QtConcurrent::run([=] () {
                 bool f = convertor->Decrypt(iter->second.toString(), destFile);
                 convertor->deleteLater();
-                QVariantList retList(3);    //int index; bool result; MusicType type;
+                QVariantList retList;    //int index; bool result; MusicType type;
+                retList.reserve(3);
                 retList[0] = iter->first.toInt();
                 retList[1] = f;
                 retList[2] = QVariant::fromValue(mType);
