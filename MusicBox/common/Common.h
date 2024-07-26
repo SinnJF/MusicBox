@@ -1,13 +1,12 @@
 ﻿#ifndef COMMON_H
 #define COMMON_H
 
-#include <filesystem>
 #include <regex>
 #include <string>
 #include <vector>
 #include <fstream>
-#include <qstring>
 #include <sstream>
+#include <QString>
 
 //判断是否存在某元素
 template <typename T>
@@ -35,21 +34,6 @@ struct musicInfo
 constexpr char FLAC_HEADER[4] = { "fLa" };
 constexpr char MP3_HEADER[4] = { "ID3" };
 
-//搜索文件
-inline std::vector<std::filesystem::path> SerchFiles(const std::filesystem::path& Dir, const std::vector<std::string>& Suffixs)
-{
-    using namespace std::filesystem;
-    auto files = std::vector<path>();
-	for (const auto& entry : recursive_directory_iterator(Dir))
-	{
-		if (is_regular_file(entry.path()) and has(Suffixs, entry.path().extension().string()))
-		{
-			files.push_back(entry.path());
-		}
-	}
-	return files;
-}
-
 //替换文本
 inline std::string replace_(std::string tarstr, const std::string& oldstr, const std::string& newstr)
 {
@@ -72,39 +56,16 @@ std::string join(T list, std::string split)
 	return out;
 }
 
-template<typename T>
-QString Qjoin(T list, std::string split)
-{
-	QString out;
-	for (int i = 0; i < list.size() - 1; i++)
-	{
-		out += list[i] + QString::fromStdString(split);
-	}
-	out += list[list.size() - 1];
-	return out;
-}
-
-//创建临时文件
-inline std::filesystem::path CreateTempFile(std::filesystem::path indir)
-{
-	int pos = 100;
-    std::string pat = "";
-    std::string org = indir.string();
-	if (('\\' == org[org.size() - 1]) or ('/' == org[org.size() - 1]))
-	{
-		pat = indir.string() + "temp_";
-	}
-	else
-	{
-		pat = indir.string() + "\\" + "temp_";
-	}
-    std::ifstream file(pat + std::to_string(pos));
-	while (file)
-	{
-		pos += 1;
-        file = std::ifstream(pat + std::to_string(pos));
-	}
-    return (pat + std::to_string(pos));
-}
+//template<typename T>
+//QString Qjoin(T list, std::string split)
+//{
+//	QString out;
+//	for (int i = 0; i < list.size() - 1; i++)
+//	{
+//		out += list[i] + QString::fromStdString(split);
+//	}
+//	out += list[list.size() - 1];
+//	return out;
+//}
 
 #endif //COMMON_H

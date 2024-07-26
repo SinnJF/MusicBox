@@ -1,8 +1,6 @@
 ﻿#ifndef NEMUSICCONVERTER_H
 #define NEMUSICCONVERTER_H
 
-#include <filesystem>
-
 #include "Converter.h"
 
 struct musicInfo;
@@ -11,11 +9,9 @@ class NEMusicConverter : public Converter
     Q_OBJECT
 public:
     explicit NEMusicConverter();
-    bool Decrypt(const QString srcFile, const QString dstPath);
+    bool Decrypt(QString srcFile, QString dstPath);
 
 private:
-    std::filesystem::path m_originalFilePath;
-    std::filesystem::path m_outputPath;
 
     void CheakHeader(std::stringstream& ms);
 
@@ -29,7 +25,7 @@ private:
 
     void DecodeAudio(std::stringstream& ms, std::ofstream& f, const std::string& RC4_key);
 
-    void SetMusicInfo(std::filesystem::path& originalFilePath, musicInfo& info, bool write163Key);
+    //void SetMusicInfo(std::filesystem::path& originalFilePath, musicInfo& info, bool write163Key);
 
     bool m_write163Key = true;
 

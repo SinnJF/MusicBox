@@ -1,8 +1,6 @@
 ﻿#ifndef KGMUSICCONVERTER_H
 #define KGMUSICCONVERTER_H
 
-#include <filesystem>
-
 #include "Converter.h"
 
 struct musicInfo;
@@ -17,8 +15,6 @@ private:
     enum MType { VPR, OTHER };
 
     MType H;
-    std::filesystem::path m_originalFilePath;
-    std::filesystem::path m_outputPath;
 
     bool CheakHeader(std::stringstream& ms);
 
@@ -28,11 +24,9 @@ private:
 
     void DecodeAudio(std::stringstream& ms, std::ofstream& f, const std::string& key);
 
-    musicInfo GetMusicInfo(std::filesystem::path originalFilePath);
+    musicInfo GetMusicInfo(QString filePath);
 
-    void Rename(const musicInfo& info, const std::filesystem::path& originalFilePath, const std::filesystem::path& tempFilePath);
-
-    void Save(const std::filesystem::path& originalFilePath, std::stringstream& ms, const std::filesystem::path& tempFilePath, std::ofstream& fs);
+    void renameWithInfo(const musicInfo& info, const QString filePath, const QString orgFilePath);
 };
 
 #endif // KGMUSICCONVERTER_H
