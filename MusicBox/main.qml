@@ -15,6 +15,11 @@ ApplicationWindow {
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height
 
+    FloatBox {
+        id: floatBox
+        z: 1
+    }
+
     SwipeView {
         id: homePage
         orientation: Qt.Vertical
@@ -148,6 +153,13 @@ ApplicationWindow {
 //            }
 
             ScrollIndicator.vertical: ScrollIndicator { }
+        }
+    }
+
+    Connections {
+        target: log
+        function onLog(msg){
+            floatBox.addLog(msg)
         }
     }
 }

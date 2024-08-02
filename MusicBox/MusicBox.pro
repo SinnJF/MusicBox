@@ -1,14 +1,16 @@
 QT += quick concurrent
 CONFIG += c++17
 
-#DEFINES += TAGLIB_STATIC #炸裂，debug模式下taglib会报错
+win32 {
+    DEFINES += TAGLIB_STATIC #炸裂，debug模式下taglib会报错
 
-#CONFIG(debug, debug | release) {
-#    QMAKE_CXXFLAGS_DEBUG += /MTd /NODEFAULTLIB:msvcrtd.lib
-#}
-#CONFIG(release, debug | release){
-#    QMAKE_CXXFLAGS_RELEASE += /MT /NODEFAULTLIB:msvcrtd.lib
-#}
+    CONFIG(debug, debug | release) {
+        QMAKE_CXXFLAGS_DEBUG += /MTd /NODEFAULTLIB:msvcrtd.lib
+    }
+    CONFIG(release, debug | release){
+        QMAKE_CXXFLAGS_RELEASE += /MT /NODEFAULTLIB:msvcrtd.lib
+    }
+}
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -40,6 +42,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     common/Cde.h \
     common/Common.h \
+    common/Logger.h \
     controller/AppService.h \
     controller/TranscodeManager.h \
     model/DataModel/KGMusicData.h \
@@ -50,24 +53,25 @@ HEADERS += \
     model/FunModel/convert/MusicFactory.h \
     model/FunModel/convert/NEMusicConverter.h
 
-INCLUDEPATH += \
-#    include/taglib-1.13.1 \
-#    include/taglib-1.13.1/build \
-#    include/taglib-1.13.1/taglib \
-#    include/taglib-1.13.1/taglib/toolkit \
-#    include/taglib-1.13.1/taglib/flac \
-#    include/taglib-1.13.1/taglib/mpeg/id3v2 \
-#    "D:/Program Files (x86)/OpenSSL/include" \
+win32 {
+    INCLUDEPATH += \
+    #    include/taglib-1.13.1 \
+    #    include/taglib-1.13.1/build \
+    #    include/taglib-1.13.1/taglib \
+    #    include/taglib-1.13.1/taglib/toolkit \
+    #    include/taglib-1.13.1/taglib/flac \
+    #    include/taglib-1.13.1/taglib/mpeg/id3v2 \
+        "D:/Program Files (x86)/OpenSSL/include" \
+}
 
 #INCLUDEPATH += $$PWD/libs/release/openssl
 #DEPENDPATH += $$PWD/libs/release/openssl
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibcrypto
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibcrypto
-#else: LIBS += -L$$PWD/libs/release/openssl/ -llibcrypto
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibcrypto
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibcrypto
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibssl
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibssl
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibssl
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibssl
 
 ##INCLUDEPATH += $$PWD/libs/release/taglib
 #DEPENDPATH += $$PWD/libs/release/taglib
@@ -79,7 +83,7 @@ INCLUDEPATH += \
 #else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltag_cd
 
 #INCLUDEPATH += $$PWD/libs/release/zlib
-DEPENDPATH += $$PWD/libs/release/zlib
+#DEPENDPATH += $$PWD/libs/release/zlib
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/zlib/ -lzlib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/zlib/ -lzlibd
@@ -100,8 +104,8 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 android: include(C:/android-sdk-windows/android_openssl/openssl.pri)
 android: {
-INCLUDEPATH += C:/android-sdk-windows/android_openssl/ssl_1.1/include \
+    INCLUDEPATH += C:/android-sdk-windows/android_openssl/ssl_1.1/include \
 
-LIBS += "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libcrypto.a" \
-        "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libssl.a"
+    LIBS += "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libcrypto.a" \
+            "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libssl.a"
 }

@@ -4,6 +4,7 @@ import QtQuick.Controls 2.5
 import Qt.labs.platform 1.1
 import "../item"
 
+//NOTE:有两处提示Binding on contentItem is not deferred...
 Item {
     ColumnLayout {
         anchors.fill: parent
@@ -96,10 +97,10 @@ Item {
                             id: icon
                             source: getIconPath(model.musicType)
                             Layout.alignment: Qt.AlignVCenter
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: console.log("label: " + contentLab.implicitWidth + " content:" + content.width + " contentItem:" + contentItem.width)
-                            }
+//                            MouseArea {
+//                                anchors.fill: parent
+//                                onClicked: console.log("label: " + contentLab.implicitWidth + " content:" + content.width + " contentItem:" + contentItem.width)
+//                            }
                         }
                         RollLabel {
                             id: rollLabel
