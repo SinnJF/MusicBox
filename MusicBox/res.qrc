@@ -6,5 +6,7 @@
         <file>res/svg/NE.svg</file>
         <file>res/svg/QM.svg</file>
         <file>res/svg/Cancel.svg</file>
+        <file>res/svg/Roll.svg</file>
+        <file>res/svg/Rolling.svg</file>
     </qresource>
 </RCC>
