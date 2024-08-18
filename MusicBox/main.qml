@@ -1,8 +1,8 @@
-﻿import QtQuick 2.15
-import QtQuick.Window 2.2
-import QtQml.Models 2.1
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.12
+﻿import QtQuick
+//import QtQuick.Window 2.2
+import QtQml.Models
+import QtQuick.Controls
+import QtQuick.Controls.Material
 import "view/item"   //目录结构
 import "view/page"
 
@@ -57,8 +57,6 @@ ApplicationWindow {
                     id: column
                     spacing: 20
                     anchors.margins: 20
-                    anchors.left: parent.left
-                    anchors.right: parent.right
 
                     Label {
                         font.pixelSize: 22
@@ -89,7 +87,7 @@ ApplicationWindow {
             id: appListView
             anchors.fill: parent
 
-            headerPositioning: ListView.OverlayHeader
+            //headerPositioning: ListView.OverlayHeader
 
             header: Pane {
                 id: appHeader
@@ -100,7 +98,7 @@ ApplicationWindow {
 
                 Image {
                     id: logo
-                    horizontalAlignment: Image.AlignLeft
+
                     height: 50
                     width: parent.width
                     source: "images/ironman.png"

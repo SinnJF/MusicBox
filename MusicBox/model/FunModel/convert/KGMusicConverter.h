@@ -9,7 +9,7 @@ class KGMusicConverter : public Converter
     Q_OBJECT
 public:
     explicit KGMusicConverter();
-    bool Decrypt(const QString srcFile, const QString dstPath);
+    bool Decrypt(QString srcFile, QString dstPath);
 
 private:
     enum MType { VPR, OTHER };

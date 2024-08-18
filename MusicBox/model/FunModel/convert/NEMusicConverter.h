@@ -13,7 +13,7 @@ public:
 
 private:
 
-    void CheakHeader(std::stringstream& ms);
+    bool CheakHeader(std::stringstream& ms);
 
     std::string GetRC4Key(std::stringstream& ms);
 
@@ -25,7 +25,7 @@ private:
 
     void DecodeAudio(std::stringstream& ms, std::ofstream& f, const std::string& RC4_key);
 
-    //void SetMusicInfo(std::filesystem::path& originalFilePath, musicInfo& info, bool write163Key);
+    void SetMusicInfo(QString filePath, musicInfo& info, bool write163Key);
 
     bool m_write163Key = true;
 

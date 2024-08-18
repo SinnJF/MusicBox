@@ -1,6 +1,6 @@
-﻿import QtQuick 2.15
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.5
+﻿import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
 
 Rectangle {
     id: root
@@ -34,7 +34,8 @@ Rectangle {
         font.pointSize: 10
         anchors.left: parent.left
         anchors.right: parent.right
-        text: m_labelText
+        text: ""
+        onTextChanged: roll()
     }
 
     Rectangle {
@@ -98,8 +99,11 @@ Rectangle {
     }
 
     onWidthChanged: {
-        sa.stop()
-        if(contentLab.implicitWidth - root.width > 0)
-            sa.start()
+        roll()
+    }
+
+    function roll() {
+        if(sa.running) sa.stop()
+        if(contentLab.implicitWidth - root.width > 0) sa.start()
     }
 }

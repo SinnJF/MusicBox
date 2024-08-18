@@ -30,7 +30,7 @@ struct musicInfo
 	std::string album;
 };
 
-//flac文件头
+//文件头
 constexpr char FLAC_HEADER[4] = { "fLa" };
 constexpr char MP3_HEADER[4] = { "ID3" };
 

@@ -1,34 +1,38 @@
 ﻿#include "KGMusicConverter.h"
 #include "model/DataModel/KGMusicData.h"
 
-//#include <taglib/fileref.h>
-//#include <taglib/tag.h>
-//#include <taglib/toolkit/tpropertymap.h>
-//#include <taglib/mpeg/mpegfile.h>
-//#include <taglib/mpeg/id3v2/id3v2tag.h>
-//#include <taglib/mpeg/id3v2/id3v2frame.h>
-//#include <taglib/mpeg/id3v2/id3v2header.h>
-//#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
-//#include <taglib/flac/flacfile.h>
-//#include <taglib/flac/flacpicture.h>
-//#include <taglib/ogg/xiphcomment.h>
-//#include <taglib/mpeg/id3v2/id3v2framefactory.h>
-//#include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
+#include <taglib/fileref.h>
+#include <taglib/tag.h>
+#include <taglib/toolkit/tpropertymap.h>
+#include <taglib/mpeg/mpegfile.h>
+#include <taglib/mpeg/id3v2/id3v2tag.h>
+#include <taglib/mpeg/id3v2/id3v2frame.h>
+#include <taglib/mpeg/id3v2/id3v2header.h>
+#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
+#include <taglib/flac/flacfile.h>
+#include <taglib/flac/flacpicture.h>
+#include <taglib/ogg/xiphcomment.h>
+#include <taglib/mpeg/id3v2/id3v2framefactory.h>
+#include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
 
 #include "common/Common.h"
 
 #include <QFileInfo>
-#include <codecvt>
+//#include <codecvt>
 
 KGMusicConverter::KGMusicConverter()
 {
 
 }
 
-bool KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
+bool KGMusicConverter::Decrypt( QString srcFile, QString dstPath)
 {
     std::ifstream f(srcFile.toStdString(), std::ios::binary);
-    if (!f) { throw std::runtime_error("打开文件失败"); return false; };
+    if (!f) {
+        //throw std::runtime_error("打开文件失败");
+        qWarning() << "open failed..." << srcFile;
+        return false;
+    };
 
     //读入文件
     std::stringstream ms;
@@ -39,6 +43,7 @@ bool KGMusicConverter::Decrypt(const QString srcFile, const QString dstPath)
     QString tempFilePath;
     QFileInfo srcFileInfo(srcFile);
     QString s = srcFileInfo.fileName();
+    if(!dstPath.endsWith("/")) dstPath += "/";
     tempFilePath = dstPath + s;
     std::ofstream fs(tempFilePath.toStdString(), std::ios::out | std::ios_base::binary);
 
@@ -66,6 +71,7 @@ bool KGMusicConverter::CheakHeader(std::stringstream &ms)
     if (strncmp(magic_hander, (char*)KGMusicData::KgmHeader, 16) == 0) { H = OTHER; return true; };
     if ((strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0) or (strncmp(magic_hander, (char*)MP3_HEADER, 3) == 0)) { return false; }
     //throw std::runtime_error("文件已损坏或不是一个支持的文件");
+    return false;
 }
 
 int KGMusicConverter::HeaderLength(std::stringstream &ms)
@@ -121,25 +127,25 @@ void KGMusicConverter::DecodeAudio(std::stringstream &ms, std::ofstream &f, cons
 
 musicInfo KGMusicConverter::GetMusicInfo(QString filePath)
 {
-//    using namespace TagLib;
+    using namespace TagLib;
     musicInfo info;
-//    std::ifstream file(filePath);
-//    char magic_hander[3];
-//    file.read(magic_hander, 3);
-//    if (strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0)
-//    {
-//        file.close();
-//        info.format = "flac";
-//    }
-//    else
-//    {
-//        file.close();
-//        info.format = "mp3";
-//    }
-//    FileRef f(originalFilePath.c_str());
-//    auto tag = f.tag();
-//    info.artist.push_back(tag->artist().to8Bit(true));
-//    info.musicName = tag->title().to8Bit(true);
+    std::ifstream file(filePath.toStdString());
+    char magic_hander[3];
+    file.read(magic_hander, 3);
+    if (strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0)
+    {
+        file.close();
+        info.format = "flac";
+    }
+    else
+    {
+        file.close();
+        info.format = "mp3";
+    }
+    FileRef f(filePath.toStdString().c_str());
+    auto tag = f.tag();
+    info.artist.push_back(tag->artist().to8Bit(true));
+    info.musicName = tag->title().to8Bit(true);
     return info;
 }
 

@@ -1,31 +1,57 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:7.4.1'
     }
 }
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
 }
 
 apply plugin: 'com.android.application'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation 'androidx.core:core:1.13.1'
+
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
+    implementation "androidx.activity:activity:1.9.1"
+    implementation 'androidx.fragment:fragment:1.4.0'
 }
+//dependencies {
+//    def activity_version = "1.9.1"
+
+//    // Java language implementation
+//    implementation "androidx.activity:activity:$activity_version"
+//    // Kotlin
+//    implementation "androidx.activity:activity-ktx:1.6.21"
+//}
+//dependencies {
+//    def fragment_version = "1.8.2"
+
+//    // Java language implementation
+//    implementation "androidx.fragment:fragment:$fragment_version"
+//    // Kotlin
+//    implementation "androidx.fragment:fragment-ktx:$fragment_version"
+//    // Compose
+//    implementation "androidx.fragment:fragment-compose:$fragment_version"
+//    // Testing Fragments in Isolation
+//    debugImplementation "androidx.fragment:fragment-testing-manifest:$fragment_version"
+//    androidTestImplementation "androidx.fragment:fragment-testing:$fragment_version"
+//}
 
 android {
     /*******************************************************
      * The following variables:
      * - androidBuildToolsVersion,
      * - androidCompileSdkVersion
-     * - qt5AndroidDir - holds the path to qt android files
+     * - qtAndroidDir - holds the path to qt android files
      *                   needed to build any Qt application
      *                   on Android.
      *
@@ -34,16 +60,20 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion androidCompileSdkVersion.toInteger()
+    namespace androidPackageName
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidBuildToolsVersion
+    ndkVersion androidNdkVersion
 
-    buildToolsVersion '28.0.3'
+    // Extract native libraries from the APK
+    packagingOptions.jniLibs.useLegacyPackaging true
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
-            aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
-            res.srcDirs = [qt5AndroidDir + '/res', 'res']
+            java.srcDirs = [qtAndroidDir + '/src', 'src', 'java']
+            aidl.srcDirs = [qtAndroidDir + '/src', 'src', 'aidl']
+            res.srcDirs = [qtAndroidDir + '/res', 'res']
             resources.srcDirs = ['resources']
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
@@ -53,7 +83,6 @@ android {
 
     tasks.withType(JavaCompile) {
         options.incremental = true
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
 
     compileOptions {
@@ -72,7 +101,8 @@ android {
 
     defaultConfig {
         resConfig "en"
-        minSdkVersion = qtMinSdkVersion
-        targetSdkVersion = qtTargetSdkVersion
+        minSdkVersion qtMinSdkVersion
+        targetSdkVersion qtTargetSdkVersion
+        ndk.abiFilters = qtTargetAbiList.split(",")
     }
 }

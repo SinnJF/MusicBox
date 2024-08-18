@@ -1,14 +1,14 @@
-QT += quick concurrent
-CONFIG += c++17
+QT += quick concurrent svg core-private
+#CONFIG += c++17
 
 win32 {
     DEFINES += TAGLIB_STATIC #炸裂，debug模式下taglib会报错
 
     CONFIG(debug, debug | release) {
-        QMAKE_CXXFLAGS_DEBUG += /MTd /NODEFAULTLIB:msvcrtd.lib
+        QMAKE_CXXFLAGS_DEBUG += /MTd /NODEFAULTLIB:library
     }
     CONFIG(release, debug | release){
-        QMAKE_CXXFLAGS_RELEASE += /MT /NODEFAULTLIB:msvcrtd.lib
+        QMAKE_CXXFLAGS_RELEASE += /MT /NODEFAULTLIB:library
     }
 }
 
@@ -40,6 +40,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    common/AndroidHelper.h \
     common/Cde.h \
     common/Common.h \
     common/Logger.h \
@@ -53,14 +54,16 @@ HEADERS += \
     model/FunModel/convert/MusicFactory.h \
     model/FunModel/convert/NEMusicConverter.h
 
+INCLUDEPATH += \
+    E:/Projects/taglib-1.13.1 \
+    E:/Projects/taglib-1.13.1/taglib \
+    E:/Projects/taglib-1.13.1/taglib/toolkit \
+    E:/Projects/taglib-1.13.1/taglib/flac \
+    E:/Projects/taglib-1.13.1/taglib/mpeg/id3v2 \
+
 win32 {
     INCLUDEPATH += \
-    #    include/taglib-1.13.1 \
-    #    include/taglib-1.13.1/build \
-    #    include/taglib-1.13.1/taglib \
-    #    include/taglib-1.13.1/taglib/toolkit \
-    #    include/taglib-1.13.1/taglib/flac \
-    #    include/taglib-1.13.1/taglib/mpeg/id3v2 \
+        E:/Projects/taglib-1.13.1/build \
         "D:/Program Files (x86)/OpenSSL/include" \
 }
 
@@ -73,17 +76,12 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -ll
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/openssl/ -llibssl
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/openssl/ -llibssl
 
-##INCLUDEPATH += $$PWD/libs/release/taglib
-#DEPENDPATH += $$PWD/libs/release/taglib
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltag
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltag
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag_c
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltag_cd
-
-#INCLUDEPATH += $$PWD/libs/release/zlib
-#DEPENDPATH += $$PWD/libs/release/zlib
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/taglib/ -ltag_c
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/taglib/ -ltag_cd
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/release/zlib/ -lzlib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/debug/zlib/ -lzlibd
@@ -99,13 +97,18 @@ DISTFILES += \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew \
     android/gradlew.bat \
-    android/res/values/libs.xml
+    android/res/values/libs.xml \
+    android/res/xml/qtprovider_paths.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 android: include(C:/android-sdk-windows/android_openssl/openssl.pri)
 android: {
     INCLUDEPATH += C:/android-sdk-windows/android_openssl/ssl_1.1/include \
+                   E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel \
 
-    LIBS += "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libcrypto.a" \
-            "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libssl.a"
+
+    LIBS += C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libcrypto.a \
+            C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libssl.a \
+            "E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel\taglib\libtag.a" \
+            "E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel\bindings\c\libtag_c.a"
 }

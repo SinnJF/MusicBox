@@ -1,11 +1,12 @@
-﻿import QtQuick 2.15
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.5
-import Qt.labs.platform 1.1
+﻿import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import Qt.labs.platform
 import "../item"
 
 //NOTE:有两处提示Binding on contentItem is not deferred...
 Item {
+    id: root
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
@@ -124,9 +125,9 @@ Item {
                     id: deleteLabel
                     height: icon.height / 2
                     width: icon.height
-                    anchors.right: parent.right
+                    anchors.right: contentItem.right
                     source: "qrc:/res/svg/Cancel.svg"
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenter: contentItem.verticalCenter
                     fillMode: Image.PreserveAspectFit
                     SwipeDelegate.onClicked: selectedFilesModel.remove(index)
                 }
@@ -146,14 +147,25 @@ Item {
             }
         }
         RowLayout {
+
             Text {
                 id: generPathText
                 text: qsTr("生成路径：")
             }
-            TextInput {
+            RollLabel {
                 id: targetPath
-                Layout.fillWidth: true
+                width: 20
+                height: 20
             }
+
+            Button {
+                id: genFolderBtn
+                text: qsTr("选择")
+                onClicked:  {
+                    genFolderDialog.open()
+                }
+            }
+
             Button {
                 id: startBtn
                 text: qsTr("转换")
@@ -183,13 +195,12 @@ Item {
                 selectedFilesModel.insert(0, {path : path, isDone: false, musicType: 0})
             }
             //console.log(files)
-            console.log("selected " + selectedFilesModel.count + " files");
-            appService.getTargetFolderSig(folder.toString(), 0)
+            console.log("selected " + selectedFilesModel.count + " files from " + folder);  //folder为空
+            //if(files.length > 0)
+            appService.getTargetFolderSig(decodeURIComponent(files[0]), 0) //安卓格式的路径处理暂时未完善
         }
     }
 
-
-    //Qt 6.3
     FolderDialog {
         id: folderDialog
         options: FolderDialog.ShowDirsOnly
@@ -199,6 +210,15 @@ Item {
             var path = url.toString().replace("file:///", "")
             selectedFilesModel.insert(0, {path : path, isDone: false, musicType: 0})
             appService.getTargetFolderSig(folder, 1)
+        }
+    }
+
+    FolderDialog {
+        id: genFolderDialog
+        options: FolderDialog.ShowDirsOnly
+        onAccepted: {
+            var url = decodeURIComponent(folder)
+            targetPath.text = url.toString().replace("file:///", "")
         }
     }
 

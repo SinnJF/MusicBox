@@ -1,12 +1,13 @@
-﻿import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.3
+﻿import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
+//import QtGraphicalEffects 1.15
 
 Item {
     id: root
     anchors.fill: parent
-    opacity: 0.6
+    opacity: 0.8
 
     property real scl
 
@@ -24,7 +25,7 @@ Item {
         height: 0
         x: root.width / 3 / 2
         y: root.height / 3 / 2
-        opacity: 0.6
+        opacity: 0.9
         border.color: Qt.lighter("grey")
 
         ScrollView {
@@ -33,6 +34,7 @@ Item {
                 id: logEdit
                 wrapMode: TextEdit.WrapAnywhere
                 clip: true
+                enabled: false
             }
         }
     }
@@ -46,10 +48,10 @@ Item {
 //    }
     RoundButton {
         id: floatBtn
-        width: 30
+        width: 50
         height: width
-        x: root.width - width / 2
-        y: root.height - height / 2
+        x: root.width - floatBtn.width / 2
+        y: root.height - floatBtn.height * 2
         radius: width / 2
         z: 1
         background: Image {
@@ -74,7 +76,6 @@ Item {
                 logWinShow.stop()
                 logWinHide.start()
             }
-            //logEdit.append(",，啊时代看咯杰卡斯空间卡索拉省的就卡死的你")
         }
         MouseArea {
             anchors.fill: parent
@@ -180,8 +181,9 @@ Item {
         NumberAnimation {
             target: logWin
             property: "opacity"
-            to: 0.8
+            to: 0.9
         }
     }
 
+    Component.onCompleted: btnRota.start()
 }
