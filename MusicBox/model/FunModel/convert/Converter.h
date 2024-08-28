@@ -8,8 +8,8 @@ class Converter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Converter(QObject *parent = nullptr){}
-    virtual inline bool Decrypt(const QString, const QString){ qWarning() << tr("virtual Converter."); return false;};
+    explicit Converter(QObject *parent = nullptr){Q_UNUSED(parent)}
+    virtual inline bool Decrypt(const QString srcFile, const QString dstDir, QString& dstFile){ qWarning() << tr("virtual Converter."); return false;};
 //    virtual ~MusicConverter() = 0;
 
 };

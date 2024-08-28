@@ -25,12 +25,13 @@ KGMusicConverter::KGMusicConverter()
 
 }
 
-bool KGMusicConverter::Decrypt( QString srcFile, QString dstPath)
+bool KGMusicConverter::Decrypt(QString srcFile, QString dstDir, QString &dstFile)
 {
+    qInfo() << "KGMusicConverter::Decrypt" << srcFile;
     std::ifstream f(srcFile.toStdString(), std::ios::binary);
     if (!f) {
         //throw std::runtime_error("打开文件失败");
-        qWarning() << "open failed..." << srcFile;
+        qWarning() << "open failed...";
         return false;
     };
 
@@ -43,8 +44,8 @@ bool KGMusicConverter::Decrypt( QString srcFile, QString dstPath)
     QString tempFilePath;
     QFileInfo srcFileInfo(srcFile);
     QString s = srcFileInfo.fileName();
-    if(!dstPath.endsWith("/")) dstPath += "/";
-    tempFilePath = dstPath + s;
+    if(!dstDir.endsWith("/")) dstDir += "/";
+    tempFilePath = dstDir + s;
     std::ofstream fs(tempFilePath.toStdString(), std::ios::out | std::ios_base::binary);
 
     //检查文件头
@@ -59,8 +60,10 @@ bool KGMusicConverter::Decrypt( QString srcFile, QString dstPath)
     DecodeAudio(ms, fs, key);
 
     auto info = GetMusicInfo(tempFilePath);
-    renameWithInfo(info, srcFile, tempFilePath);
-    return true;
+    bool ret = renameWithInfo(info, srcFile, tempFilePath, dstFile);
+    if(!ret) qWarning() << "文件已存在，请先手动删除。" << dstFile;
+    else qInfo() << "kg dstfile: " << dstFile;
+    return ret;
 }
 
 bool KGMusicConverter::CheakHeader(std::stringstream &ms)
@@ -71,6 +74,7 @@ bool KGMusicConverter::CheakHeader(std::stringstream &ms)
     if (strncmp(magic_hander, (char*)KGMusicData::KgmHeader, 16) == 0) { H = OTHER; return true; };
     if ((strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0) or (strncmp(magic_hander, (char*)MP3_HEADER, 3) == 0)) { return false; }
     //throw std::runtime_error("文件已损坏或不是一个支持的文件");
+    qWarning() << "KGMusicConverter: 文件已损坏或不支持该格式";
     return false;
 }
 
@@ -130,9 +134,9 @@ musicInfo KGMusicConverter::GetMusicInfo(QString filePath)
     using namespace TagLib;
     musicInfo info;
     std::ifstream file(filePath.toStdString());
-    char magic_hander[3];
-    file.read(magic_hander, 3);
-    if (strncmp(magic_hander, (char*)FLAC_HEADER, 3) == 0)
+    char header[3];
+    file.read(header, 3);
+    if (strncmp(header, (char*)FLAC_HEADER, 3) == 0)
     {
         file.close();
         info.format = "flac";
@@ -149,38 +153,39 @@ musicInfo KGMusicConverter::GetMusicInfo(QString filePath)
     return info;
 }
 
-void KGMusicConverter::renameWithInfo(const musicInfo &info, const QString filePath, const QString orgFilePath)
+bool KGMusicConverter::renameWithInfo(const musicInfo &info, const QString filePath, const QString orgFilePath, QString& dstFile)
 {
-    std::string name;
-    std::vector<std::string> artist;
-    QStringList artists;
-    for(const std::string &a : artist)
+    QString artistStr;
+    for(const auto& s : info.artist)
     {
-        artists.append(QString::fromStdString(a));
+        artistStr = artistStr + "、" + QString::fromStdString(s);
     }
+    artistStr = artistStr.sliced(1);
+    artistStr.replace("\\", "、");
+    artistStr.replace("/", "、");    //原生分隔
 
     //空文件名处理
     QFileInfo fi(filePath);
-    QString str;
+    QString name;
     if ("" == info.musicName)
     {
-        str = QString("[unknown]%1.%2")
+        name = QString("[unknown]%1.%2")
             .arg(fi.baseName())
             .arg(QString::fromStdString(info.format));
     }
     else
     {
-        str = QString("%1 - %2.%3")
+        name = QString("%1 - %2.%3")
+            .arg(artistStr)
             .arg(QString::fromStdString(info.musicName))
-            .arg(artists.join("、 "))
             .arg(QString::fromStdString(info.format));
     }
-    name = str.toStdString();
 
     fi.setFile(orgFilePath);
-    QString parentPath = fi.path();
-    if (!parentPath.endsWith("/")) {
-        parentPath += "/";
+    QString dirPath = fi.path();
+    if (!dirPath.endsWith("/")) {
+        dirPath += "/";
     }
-    QFile::rename(orgFilePath, parentPath + QString::fromStdString(name));
+    dstFile = dirPath + name;
+    return QFile::rename(orgFilePath, dstFile);
 }

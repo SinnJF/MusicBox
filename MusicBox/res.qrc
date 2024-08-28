@@ -8,5 +8,16 @@
         <file>res/svg/Cancel.svg</file>
         <file>res/svg/Roll.svg</file>
         <file>res/svg/Rolling.svg</file>
+        <file>res/png/k0.png</file>
+        <file>res/png/k1.png</file>
+        <file>res/png/k2.png</file>
+        <file>res/svg/Output.svg</file>
+        <file>res/bg.jpg</file>
+        <file>res/ironman.png</file>
+        <file>res/svg/Convert.svg</file>
+        <file>res/svg/Info.svg</file>
+        <file>res/svg/Play.svg</file>
+        <file>res/svg/Rename.svg</file>
+        <file>res/svg/Pause.svg</file>
     </qresource>
 </RCC>

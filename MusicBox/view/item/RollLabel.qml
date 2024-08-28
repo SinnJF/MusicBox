@@ -9,6 +9,7 @@ Rectangle {
     //property alias bgClr: bgRect.color
 
     Layout.fillWidth: true
+    Layout.fillHeight: true
     clip: true
 
     Rectangle {
@@ -31,7 +32,7 @@ Rectangle {
         //verticalAlignment: Text.AlignVCenter
         //horizontalAlignment: Text.AlignLeft
         anchors.verticalCenter: parent.verticalCenter
-        font.pointSize: 10
+        font.pointSize: 12
         anchors.left: parent.left
         anchors.right: parent.right
         text: ""

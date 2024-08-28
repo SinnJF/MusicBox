@@ -23,29 +23,27 @@ void outputMsg(QtMsgType type, const QMessageLogContext& context, const QString&
     static QMutex mtx;
     QMutexLocker lock(&mtx);
     QString logStr;
-    QByteArray localMsg = msg.toUtf8();
-    switch (type) {
-    case QtDebugMsg:
-        logStr = "Debug: ";
-        break;
-    case QtInfoMsg:
-        logStr = "Info: ";
-        break;
-    case QtWarningMsg:
-        logStr = "Warning: ";
-        break;
-    case QtCriticalMsg:
-        logStr = "Critical: ";
-        break;
-    case QtFatalMsg:
-        logStr = "Fatal: ";
-        break;
-    }
     QString current_date_time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     QString current_date = QString("(%1)").arg(current_date_time);
-    QString message = QString("%1 %2 %3 %4\n").arg(current_date).arg(context.function).arg(logStr).arg(msg);
-    if(logFile.isOpen()) logFile.write(message.toUtf8());
-    emit Logger::getInatance().log(message);
+    switch (type) {
+    case QtDebugMsg:
+        //logStr = QString("%1 Debug: %2 %3\n").arg(current_date).arg(context.function).arg(msg);
+        break;
+    case QtInfoMsg:
+        logStr = QString("%1 Info: %2 %3\n").arg(current_date).arg(context.function).arg(msg);
+        break;
+    case QtWarningMsg:
+        logStr = QString("%1 Warning: %2 %3\n").arg(current_date).arg(context.function).arg(msg);
+        break;
+    case QtCriticalMsg:
+        logStr = QString("%1 Critical: %2 %3\n").arg(current_date).arg(context.function).arg(msg);
+        break;
+    case QtFatalMsg:
+        logStr = QString("%1 Fatal: %2 %3\n").arg(current_date).arg(context.function).arg(msg);
+        break;
+    }
+    if(logFile.isOpen()) logFile.write(logStr.toUtf8());
+    emit Logger::getInatance().log(logStr);
 }
 
 void endLog()
@@ -64,14 +62,22 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
-    //qInstallMessageHandler(outputMsg);
+    qInstallMessageHandler(outputMsg);
 
-    QString logPath = QDir::currentPath() + QDir::separator() + "log.txt";
+    QString logPath;
+#ifdef Q_OS_ANDROID
+    //checkPermission();
+    accessAllFiles();
+    logPath = "/sdcard/MusicBox/log.txt";
+    QDir dir;
+    dir.mkdir("/sdcard/MusicBox/");
+#else
+    logPath = QDir::currentPath() + QDir::separator() + "log.txt";
+#endif
     logFile.setFileName(logPath);
-    qInfo() << "open " << logPath << " : " << logFile.open(QIODevice::ReadWrite | QIODevice::Append);
+    qInfo() << "open " << logPath << " : " << logFile.open(QIODevice::WriteOnly | QIODevice::Append);
     qInfo("==================log==================");
-    qInfo() << "main threadid: " << QThread::currentThreadId();
-    //TranscodeManager
+    //qInfo() << "main threadid: " << QThread::currentThreadId();
     AppService appService;
 
     QQmlApplicationEngine engine;
@@ -88,10 +94,6 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
-#ifdef Q_OS_ANDROID
-    //checkPermission();
-    accessAllFiles();
-#endif
     // QFile a("/storage/emulated/0/MusicBox/a.txt");
     // qInfo() << "===============000000000" << a.open(QIODevice::ReadOnly);
     // qInfo() << "==============111111111" << a.errorString() << "data: " << a.readAll();

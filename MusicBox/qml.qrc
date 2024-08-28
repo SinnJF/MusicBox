@@ -3,8 +3,14 @@
         <file>main.qml</file>
         <file>images/ironman.png</file>
         <file>images/Check.png</file>
-        <file>view/page/AudioTranscodePage.qml</file>
+        <file>view/page/AudioConvertPage.qml</file>
         <file>view/item/RollLabel.qml</file>
         <file>view/item/FloatBox.qml</file>
+        <file>view/item/CircleIndicator.qml</file>
+        <file>view/item/QtStyleLabel.qml</file>
+        <file>view/item/GlowButton.qml</file>
+        <file>view/page/InfoEditPage.qml</file>
+        <file>view/page/RenamePage.qml</file>
+        <file>view/item/MMediaPlayer.qml</file>
     </qresource>
 </RCC>

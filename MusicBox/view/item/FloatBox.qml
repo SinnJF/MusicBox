@@ -6,10 +6,20 @@ import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
-    anchors.fill: parent
-    opacity: 0.8
+    //anchors.fill: parent
+    opacity: 0.9
 
     property real scl
+    property var imgs: ["qrc:/res/png/k0.png",
+                        "qrc:/res/png/k1.png",
+                        "qrc:/res/png/k2.png"]
+
+    state: "ks0"
+    states: [
+        State { name: "ks0"; PropertyChanges { target: floatBtn.background.children[0]; source: imgs[0] } },    //...
+        State { name: "ks1"; PropertyChanges { target: floatBtn.background.children[0]; source: imgs[1] } },
+        State { name: "ks2"; PropertyChanges { target: floatBtn.background.children[0]; source: imgs[2] } }
+    ]
 
     function addLog(log) {
         logEdit.append(log)
@@ -23,8 +33,8 @@ Item {
         id:logWin
         width: 0
         height: 0
-        x: root.width / 3 / 2
-        y: root.height / 3 / 2
+        x: floatBtn.x + floatBtn.width / 2
+        y: floatBtn.y + floatBtn.height / 2
         opacity: 0.9
         border.color: Qt.lighter("grey")
 
@@ -35,7 +45,10 @@ Item {
                 wrapMode: TextEdit.WrapAnywhere
                 clip: true
                 enabled: false
+                font.pixelSize: 10
             }
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOff
         }
     }
 //    DropShadow {
@@ -48,31 +61,44 @@ Item {
 //    }
     RoundButton {
         id: floatBtn
-        width: 50
+        width: 30
         height: width
-        x: root.width - floatBtn.width / 2
-        y: root.height - floatBtn.height * 2
+        x: root.width - floatBtn.width// / 2
+        y: root.height - floatBtn.height * 3
         radius: width / 2
         z: 1
-        background: Image {
-            //id: floatIcon //NOTE:使用id会有提示
+        background: /*Image {
             width: parent.width
             height: parent.height
             anchors.centerIn: parent
             source: "qrc:/res/svg/Rolling.svg"
+        }*/
+        Item {
+            width: parent.width
+            height: parent.height
+            Image {
+                //id: img
+                source: imgs[0]
+                width: parent.width
+                height: parent.height
+                anchors.centerIn: parent
+            }
         }
         onClicked: {
-            if(btnRota.running) {
-                btnRota.stop()
-                floatBtn.background.source = "qrc:/res/svg/Roll.svg"
+            // if(btnRota.running) {
+            //     btnRota.stop()
+            if(timer.running) {
+                timer.stop()
+                //floatBtn.background.source = "qrc:/res/svg/Roll.svg"
                 //floatIcon.source = "qrc:/res/svg/Roll.svg"
                 logWinHide.stop()
                 logWinShow.start()
             }
             else {
-                var c = floatBtn.background.source = "qrc:/res/svg/Rolling.svg"
+                //var c = floatBtn.background.source = "qrc:/res/svg/Rolling.svg"
                 //floatIcon.source = "qrc:/res/svg/Rolling.svg"
-                btnRota.start()
+                timer.start()
+                //btnRota.start()
                 logWinShow.stop()
                 logWinHide.start()
             }
@@ -89,18 +115,18 @@ Item {
             onReleased: {
                 //console.log(floatBtn.x + " " + root.width)
                 if(Math.abs(floatBtn.x) < floatBtn.width * 2) {
-                    moveXAni.to = -1 * floatBtn.width / 2
+                    moveXAni.to = 0;//-1 * floatBtn.width / 2
                     moveXAni.start()
                     return
                 } else if(Math.abs(root.width - floatBtn.x) < floatBtn.width * 2) {
-                    moveXAni.to = root.width - floatBtn.width / 2
+                    moveXAni.to = root.width - floatBtn.width;// / 2
                     moveXAni.start()
                     return
                 } else if(Math.abs(floatBtn.y) < floatBtn.height * 2) {
-                    moveYAni.to = -1 * floatBtn.height / 2
+                    moveYAni.to = 0;//-1 * floatBtn.height / 2
                     moveYAni.start()
-                } else if(Math.abs(root.width - floatBtn.x) < floatBtn.height * 2) {
-                    moveYAni.to = root.height - floatBtn.height / 2
+                } else if(Math.abs(root.height - floatBtn.y) < floatBtn.height * 2) {
+                    moveYAni.to = root.height - floatBtn.height;// / 2
                     moveYAni.start()
                 }
             }
@@ -132,12 +158,12 @@ Item {
         NumberAnimation {
             target: logWin
             property: "x"
-            to: floatBtn.x + floatBtn.width
+            to: floatBtn.x + floatBtn.width / 2
         }
         NumberAnimation {
             target: logWin
             property: "y"
-            to: floatBtn.y + floatBtn.height
+            to: floatBtn.y + floatBtn.height / 2
         }
         //WARNING:日志窗强行变小会有警告：scrollbar的visible和textarea的implicitHeight
         NumberAnimation {
@@ -185,5 +211,23 @@ Item {
         }
     }
 
-    Component.onCompleted: btnRota.start()
+    Component.onCompleted: {
+        timer.start()
+        //btnRota.start()
+    }
+
+    Timer {
+        id: timer
+       interval: 150
+       running: false
+       repeat: true
+       onTriggered: {
+           switch(root.state)
+           {
+               case "ks0": root.state = "ks1"; return;
+               case "ks1": root.state = "ks2"; return;
+               case "ks2": root.state = "ks0"; return;
+           }
+       }
+    }
 }

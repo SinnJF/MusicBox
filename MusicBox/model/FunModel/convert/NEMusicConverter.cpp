@@ -29,17 +29,12 @@ NEMusicConverter::NEMusicConverter()
 
 }
 
-bool NEMusicConverter::Decrypt(QString srcFile, QString dstPath)
+bool NEMusicConverter::Decrypt(QString srcFile, QString dstDir, QString &dstFile)
 {
     qInfo() << "NEMusicConverter::Decrypt" << srcFile;
     std::ifstream f(srcFile.toStdString(), std::ios::binary);
     if (!f) {
-        //throw std::runtime_error("打开文件失败");
-        qInfo() << f.exceptions();
-        QFile file(srcFile);
-        file.open(QIODevice::ReadOnly);
-        qInfo() << file.isOpen() << file.errorString();
-        file.close();
+        qWarning() << "open fail... " ;
         return false;
     };
 
@@ -51,57 +46,49 @@ bool NEMusicConverter::Decrypt(QString srcFile, QString dstPath)
     auto RC4_key = GetRC4Key(ms);
     auto info = GetMusicInfo(ms);
     int CRC = GetCRCCode(ms);
+    Q_UNUSED(CRC)
     ms.seekg(5, std::ios::cur);
     //获取封面
     info.cover = GetImage(ms);
 
     //拼接文件名
-    if (info.artist.size() > 3) { info.artist = { info.artist[0],info.artist[1],info.artist[2],"..." }; };
-    std::string name = (info.musicName + " - " + join(info.artist, (std::string)",") + "." + info.format);
+    QString artistStr;
+    for(const auto& s : info.artist)
+    {
+        artistStr = artistStr + " " + QString::fromStdString(s);
+    }
+    artistStr = artistStr.simplified();
+    QString name = QString("%1 - %2.%3")
+                   .arg(artistStr)
+                   .arg(QString::fromStdString(info.musicName))
+                   .arg(QString::fromStdString(info.format));
 
-    //替换为全角字符,防止出错
-    name = replace_(name, "?", { "？" });
-    name = replace_(name, "*", { "＊" });
-    name = replace_(name, ":", { "：" });
-    name = replace_(name, "<", { "＜" });
-    name = replace_(name, ">", { "＞" });
-    name = replace_(name, "/", { "／" });
-    name = replace_(name, "\\", { "＼" });
-    name = replace_(name, "|", { "｜" });
-    name = replace_(name, "\"", "＂");
-
-    //utf-8文件名
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::wstring wideFilename = converter.from_bytes(name);
-
-    if(!dstPath.endsWith("/")) dstPath += "/";
-    QString dstFilePath = dstPath + QString::fromStdString(name);
-    qInfo() << "dstFilePath: " << dstFilePath;
+    if(!dstDir.endsWith("/")) dstDir += "/";
+    dstFile = dstDir + name;
 
     //正式解密文件
-    std::ofstream file(dstFilePath.toStdString(), std::ios::out | std::ios::binary);
+    std::ofstream file(dstFile.toStdString(), std::ios::out | std::ios::binary);
     if (!file.good()) {
-        //throw std::runtime_error("write file error.");
-        qInfo() << "file open error: " << file.fail();
+        qInfo() << "file open error: " << dstFile;
         return false;
     }
     DecodeAudio(ms, file, RC4_key);
-    qInfo() << "DecodeAudio finish...";
 
-    SetMusicInfo(dstFilePath, info, m_write163Key);
-    qInfo() << "SetMusicInfo & save finish...";
+    SetMusicInfo(dstFile, info, m_write163Key);
+    qInfo() << "SetMusicInfo & save finish..." << dstFile;
     return true;
 }
 
-bool NEMusicConverter::CheakHeader(std::stringstream &ms)
+bool NEMusicConverter:: CheakHeader(std::stringstream &ms)
 {
     char magic_hander[10];
     ms.read(magic_hander, 10);
     if (strncmp(NCMusicData::NCM_hander, magic_hander, 9) != 0)
     {
-        qWarning() << "ncm已损坏或不是一个ncm文件";
+        qWarning() << "ncm已损坏或不支持该格式";
         return false;
     }
+    return true;
 }
 
 std::string NEMusicConverter::GetRC4Key(std::stringstream &ms)
@@ -220,7 +207,6 @@ void NEMusicConverter::DecodeAudio(std::stringstream &ms, std::ofstream &f, cons
 
     //解密流
     char buffer[256];
-    std::stringstream output;
     while (!ms.eof())
     {
         ms.read(buffer, 256);

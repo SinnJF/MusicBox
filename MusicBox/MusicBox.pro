@@ -1,4 +1,4 @@
-QT += quick concurrent svg core-private
+QT += quick concurrent svg core-private multimedia
 #CONFIG += c++17
 
 win32 {
@@ -23,7 +23,8 @@ SOURCES += \
         model/FunModel/convert/ConverterFactory.cpp \
         model/FunModel/convert/KGMusicConverter.cpp \
         model/FunModel/convert/MusicFactory.cpp \
-        model/FunModel/convert/NEMusicConverter.cpp
+        model/FunModel/convert/NEMusicConverter.cpp \
+        model/FunModel/convert/QQMusicConverter.cpp
 
 RESOURCES += qml.qrc \
     res.qrc
@@ -48,11 +49,13 @@ HEADERS += \
     controller/TranscodeManager.h \
     model/DataModel/KGMusicData.h \
     model/DataModel/NCMusicData.h \
+    model/DataModel/QQMusicData.h \
     model/FunModel/convert/Converter.h \
     model/FunModel/convert/ConverterFactory.h \
     model/FunModel/convert/KGMusicConverter.h \
     model/FunModel/convert/MusicFactory.h \
-    model/FunModel/convert/NEMusicConverter.h
+    model/FunModel/convert/NEMusicConverter.h \
+    model/FunModel/convert/QQMusicConverter.h
 
 INCLUDEPATH += \
     E:/Projects/taglib-1.13.1 \

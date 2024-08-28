@@ -22,12 +22,12 @@ bool has(const std::vector<T>& list, const T& obj)
 //音乐信息
 struct musicInfo
 {
-	std::string musicName;
-	std::string format;
+    std::string musicName;
+    std::string format;
     std::vector<std::string> artist;
-	std::string cover;
-	std::string ncmkey;
-	std::string album;
+    std::string cover;
+    std::string ncmkey;
+    std::string album;
 };
 
 //文件头

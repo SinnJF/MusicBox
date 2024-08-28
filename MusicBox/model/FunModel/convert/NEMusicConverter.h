@@ -9,7 +9,7 @@ class NEMusicConverter : public Converter
     Q_OBJECT
 public:
     explicit NEMusicConverter();
-    bool Decrypt(QString srcFile, QString dstPath);
+    bool Decrypt(QString srcFile, QString dstDir, QString& dstFile) override;
 
 private:
 

@@ -1,6 +1,7 @@
 ﻿#include "MusicFactory.h"
 #include "KGMusicConverter.h"
 #include "NEMusicConverter.h"
+#include "QQMusicConverter.h"
 
 #include <QDebug>
 #include <QFileInfo>
@@ -26,5 +27,7 @@ Converter *MusicFactory::createConverter(MusicType type)
         return new KGMusicConverter();
     case MusicType::NEMusic:
         return new NEMusicConverter();
+    case MusicType::QQMusic:
+        return new QQMusicConverter();
     }
 }

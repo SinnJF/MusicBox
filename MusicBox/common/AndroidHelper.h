@@ -1,12 +1,17 @@
 #ifndef ANDROIDHELPER_H
 #define ANDROIDHELPER_H
 
-#include "QtCore"
-#include <QtGlobal>
+//#include "QtCore"
+#include "qsystemdetection.h"
+#include "qoperatingsystemversion.h"
+
+//#include <QtGlobal>
 
 #ifdef Q_OS_ANDROID
 #include <QCoreApplication>
 #include <QtCore/private/qandroidextras_p.h>
+#include <QUrl>
+#include <QFileInfo>
 
 inline bool checkPermission() {
     QList<bool> permissions;
@@ -64,7 +69,7 @@ inline void accessAllFiles()
         return;
     }
 // Here you have to set your PackageName
-#define PACKAGE_NAME "package:org.qtproject.example"
+#define PACKAGE_NAME "package:org.qtproject.musicbox"
     jboolean value = QJniObject::callStaticMethod<jboolean>("android/os/Environment", "isExternalStorageManager");
     if(value == false) {
         qInfo() << "requesting ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION";
