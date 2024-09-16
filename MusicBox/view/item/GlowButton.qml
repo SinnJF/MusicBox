@@ -27,7 +27,7 @@ QtStyleLabel{
     IconLabel{
         id: label
         anchors.centerIn: parent
-        icon.source: "qrc:/res/svg/Done.svg"
+        icon.source: ""
         icon.color: "#FFFFFF"
         icon.width: 20
         icon.height: 20

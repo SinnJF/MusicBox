@@ -1,7 +1,7 @@
 ﻿import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt.labs.platform
+import QtQuick.Dialogs
 import "../item"
 
 Item {
@@ -27,47 +27,15 @@ Item {
                 visible: false
             }
 
-            CheckBox {
-                id: fileCheckBox
-                text: qsTr("文件")
-                checked: true
-                checkable: false
-                onCheckedChanged:{
-                    if(checked) {
-                        checkable = false;
-                        folderCheckBox.checked = false;
-                        folderCheckBox.checkable = true;
-                    }
-                }
-                visible: false
-            }
-            CheckBox {
-                id: folderCheckBox
-                text: qsTr("文件夹")
-                checked: false
-                checkable: true
-                onCheckedChanged: {
-                    if(checked) {
-                        checkable = false;
-                        fileCheckBox.checked = false;
-                        fileCheckBox.checkable = true;
-                    }
-                }
-                visible: false
-            }
             GlowButton {
                 id: chooseFilesBtn
                 width: root.width * 0.5
                 height: 30
                 text: qsTr(" 选择数据源")
+                btnIcon: "qrc:/res/svg/Done.svg"
                 Layout.alignment: Qt.AlignCenter
                 onClicked: {
-                    if(fileCheckBox.checked) {
-                        fileDialog.open()
-                    }
-                    else if(folderCheckBox.checked) {
-                        folderDialog.open()
-                    }
+                    fileDialog.open()
                     bottomSwipe.setCurrentIndex(0)
                 }
             }
@@ -220,7 +188,6 @@ Item {
                         id: genFolderBtn
                         width: 60
                         height: 30
-                        btnIcon: ""
                         text: qsTr("选择")
                         onClicked:  {
                             genFolderDialog.open()
@@ -231,7 +198,6 @@ Item {
                         id: startBtn
                         width: 60
                         height: 30
-                        btnIcon: ""
                         text: qsTr("转换")
                         Layout.alignment: Qt.AlignCenter
                         onClicked: {
@@ -397,22 +363,9 @@ Item {
             //     var path = url.toString().replace("file:///", "")
             //     selectedFilesModel.insert(0, {path : path, isDone: true, musicType: 0})
             // }
-            appService.getSelectedFilesSig(files);
+            appService.getSelectedFilesSig(selectedFiles);
             //folder属性为空
-            appService.getTargetFolderSig(decodeURIComponent(files[0]), 0)
-        }
-    }
-
-    //obsolete
-    FolderDialog {
-        id: folderDialog
-        options: FolderDialog.ShowDirsOnly
-        onAccepted: {
-            selectedFilesModel.clear()
-            var url = decodeURIComponent(folder)
-            var path = url.toString().replace("file:///", "")
-            selectedFilesModel.insert(0, {path : path, isDone: true, musicType: 0})
-            appService.getTargetFolderSig(folder, 1)
+            appService.getTargetFolderSig(decodeURIComponent(selectedFiles[0]), 0)
         }
     }
 

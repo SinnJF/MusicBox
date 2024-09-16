@@ -13,7 +13,7 @@ ApplicationWindow {
     title: qsTr("MucisBox")
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height
-    readonly property string version: "v0.5_beta"
+    readonly property string version: "v0.6_beta"
 
     background: Image {
         source: "qrc:/res/bg.jpg"

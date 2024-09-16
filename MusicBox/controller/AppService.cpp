@@ -1,7 +1,10 @@
 ﻿#include "AppService.h"
 #include "TranscodeManager.h"
+#include "common/AndroidHelper.h"
+#include "InfoEditManager.h"
 
 #include <QThread>
+#include <QQmlFile>
 
 AppService::AppService(QObject *parent)
     : QObject{parent}
@@ -22,6 +25,18 @@ AppService::AppService(QObject *parent)
     connect(&TranscodeManager::getInstance(), &TranscodeManager::retProgressSig, this, &AppService::retProgressSig);
 
     transManThread->start();
+
+    //-----------------InfoEditManager----------------
+    infoEditThread = new QThread();
+    InfoEditManager::getInstance().moveToThread(infoEditThread);
+
+    connect(this, &AppService::getFilesnfoSig, &InfoEditManager::getInstance(), &InfoEditManager::getSrcInfo);
+    connect(&InfoEditManager::getInstance(), &InfoEditManager::retSrcInfo, this, &AppService::retFilesInfoSig);
+    connect(this, &AppService::editFileInfoSig, &InfoEditManager::getInstance(), &InfoEditManager::editInfo);
+    connect(&InfoEditManager::getInstance(), &InfoEditManager::retSig, this, &AppService::retSig);
+    connect(&InfoEditManager::getInstance(), &InfoEditManager::retProgressSig, this, &AppService::retProgressSig);
+
+    infoEditThread->start();
 }
 
 AppService::~AppService()
@@ -104,4 +119,57 @@ void AppService::handleRenameRepl(QVariant vars, QString tobeRepl, QString repl)
         else qWarning() << "检查该路径：" << iter->second.toString();
     }
     emit retProgressSig(total, succ, fail);
+}
+
+void AppService::handleAddTail(QVariant vars, QString tail)
+{
+    int succ = 0,fail = 0, total = 0;
+    QVariantMap files = vars.toMap();
+    total = files.size();
+    QFileInfo info;
+    for(auto iter = files.constKeyValueBegin(); iter != files.constKeyValueEnd(); iter++)
+    {
+        info.setFile(iter->second.toString());
+        if(info.isFile())
+        {
+            bool r = QFile::rename(iter->second.toString(), iter->second.toString() + tail);
+            r ? succ++ : fail++;
+            QVariantList retList;   //int index; bool result; MusicType type; QString path;
+            retList.clear();
+            retList.append(QVariant::fromValue(iter->first.toInt()));
+            retList.append(QVariant::fromValue(r));
+            retList.append(QVariant::fromValue(iter->second.toString() + tail));
+            emit retSig(QVariant::fromValue(retList));
+            qInfo() << QString("%1->%2: %3").arg(iter->second.toString())
+                           .arg(iter->second.toString() + tail).arg(r);
+        }
+        else qWarning() << "检查该路径：" << iter->second.toString();
+    }
+    emit retProgressSig(total, succ, fail);
+}
+
+QString AppService::getRealPath(QVariant var)
+{
+    QString ret;
+    QUrl url = var.toUrl();
+#ifdef Q_OS_ANDROID
+    ret = getRealPathFromUri(url);
+#else
+    ret = QQmlFile::urlToLocalFileOrQrc(url);
+#endif
+    return ret;
+}
+
+QStringList AppService::getRealPaths(QList<QUrl> vars)
+{
+    QStringList paths;
+    for(auto& url : vars)
+    {
+#ifdef Q_OS_ANDROID
+        paths.append(getRealPathFromUri(url));
+#else
+        paths.append(QQmlFile::urlToLocalFileOrQrc(url));
+#endif
+    }
+    return paths;
 }
