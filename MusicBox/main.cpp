@@ -62,7 +62,9 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
+#ifdef QT_NO_DEBUG
     qInstallMessageHandler(outputMsg);
+#endif
 
     QString logPath;
 #ifdef Q_OS_ANDROID
