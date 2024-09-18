@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt.labs.platform
+import QtQuick.Dialogs
 import "../item"
 
 Item {
@@ -16,15 +16,6 @@ Item {
             id: rowLayout
             Layout.alignment: Qt.AlignHCenter
             Layout.margins: 5
-            Button {
-                id:test
-                text: "test"
-                onClicked: {
-                    progsPopup.open()
-                    console.log(progsPopup.width)
-                }
-                visible: false
-            }
             GlowButton {
                 id: chooseFilesBtn
                 width: root.width * 0.5
@@ -40,6 +31,8 @@ Item {
             spacing: 0
             clip: true
 
+            property int contentHeight: root.width * 0.1
+
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignLeft
@@ -51,13 +44,13 @@ Item {
             delegate: SwipeDelegate {
                 id: listDelegate
                 width: seleListView.width
-                height: 45
+                height: seleListView.contentHeight + space
                 padding: 1
                 background: Rectangle{
                     color: "transparent"
                 }
 
-                contentItem: Rectangle {
+                Rectangle {
                     width: listDelegate.width
                     height: listDelegate.height
                     color: "transparent"
@@ -66,20 +59,19 @@ Item {
                         spacing: space
                         anchors.fill: parent
                         anchors.leftMargin: space
+                        anchors.rightMargin: space
                         Item {
-                            height: listDelegate.contentItem.height - space
+                            height: seleListView.contentHeight
                             width: height
-                            Layout.alignment: Qt.AlignVCenter
                             Image {
-                                height: parent.height
-                                width: height
+                                sourceSize: Qt.size(parent.height - root.space, parent.height - root.space)
                                 source: getIconPath(model.musicType)
-                                Layout.alignment: Qt.AlignVCenter
+                                anchors.centerIn: parent
                             }
                         }
 
                         RollLabel {
-                            height: listDelegate.contentItem.height
+                            height: seleListView.contentHeight
                             text: model.path
                             color: model.isDone ? getClr(model.musicType) : "#aa696969"
                         }
@@ -112,24 +104,30 @@ Item {
             ComboBox {
                 height: 30
                 flat: true
-                model: ["交换", "替换"]
+                model: ["交换", "替换", "追加"]
                 currentIndex: -1
                 onActivated: {
                     if(currentIndex === 0)
                     {
                         switchBtn.visible = true
                         replaceItem.visible = false
+                        addItem.visible = false
                         showInfo("交换\" - \"两侧的内容（除后缀名），如A - B.mp3 => B - A.mp3\n暂不支持文件名含多个\"-\"或\".\"")
-                    } else if(currentIndex === 1){
+                    } else if(currentIndex === 1) {
                         switchBtn.visible = false
                         replaceItem.visible = true
+                        addItem.visible = false
                         showInfo("指定字符串替换，如.flac替换为空，即A - B.kgm.flac => A - B.kgm")
+                    }
+                    else if(currentIndex === 2) {
+                        switchBtn.visible = false
+                        replaceItem.visible = false
+                        addItem.visible = true
+                        showInfo("在原文件名后追加字符，如A - B => A - B.jpg")
                     }
                 }
             }
-            Item {
-                Layout.fillWidth: true
-            }
+            SpacerItem {}
 
             GlowButton {
                 id: switchBtn
@@ -158,7 +156,7 @@ Item {
                     anchors.fill: parent
                     TextField {
                         id: tobeRepl
-                        height: 25
+                        height: 30
                         hoverEnabled: true
                         selectByMouse: true
                         //color:
@@ -176,7 +174,7 @@ Item {
                     }
                     TextField {
                         id: repl
-                        height: 25
+                        height: 30
                         hoverEnabled: true
                         selectByMouse: true
                         //color:
@@ -206,6 +204,46 @@ Item {
                     }
                 }
             }
+            Item {
+                id: addItem
+                visible: false
+                Layout.fillWidth: true
+                width: 20
+                height: 30
+                RowLayout {
+                    anchors.fill: parent
+                    TextField {
+                        id: toBeAdd
+                        height: 30
+                        hoverEnabled: true
+                        selectByMouse: true
+                        //color:
+                        font.pixelSize: 13
+                        Layout.fillWidth: true
+                        background: Rectangle {
+                            color: "aliceblue"
+                            radius: 3
+                            border.width: 1
+                            border.color: "tomato"
+                        }
+                    }
+                    GlowButton {
+                        id: addBtn
+                        width: 60
+                        height: 30
+                        btnIcon: ""
+                        text: qsTr("追加")
+                        onClicked: {
+                            if(selectedFilesModel.count < 1) return;
+                            var paths = {}
+                            for(var i = 0; i < selectedFilesModel.count; ++i) {
+                                paths[i] = selectedFilesModel.get(i).path
+                            }
+                            appService.handleAddTail(paths, toBeAdd.text)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -216,8 +254,7 @@ Item {
         nameFilters: ["All files (*.*)"]
         onAccepted: {
             selectedFilesModel.clear()
-            appService.getSelectedFilesSig(files);
-            appService.getTargetFolderSig(decodeURIComponent(files[0]), 0)
+            appService.getSelectedFilesSig(selectedFiles);
         }
     }
     Popup {
@@ -272,12 +309,6 @@ Item {
             for(var i in files) {
                 selectedFilesModel.insert(0, {path : files[i], isDone: true, musicType: 0})
             }
-        }
-
-        function onRetMsgSig(result){
-            console.log(result)
-            //infoPopup.open()
-            progsPopup.closePolicy = Popup.CloseOnPressOutside | Popup.CloseOnEscape
         }
 
         function onRetSig(retList){

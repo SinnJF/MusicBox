@@ -7,7 +7,7 @@ import Qt5Compat.GraphicalEffects
 Item {
     id: root
     //anchors.fill: parent
-    opacity: 0.9
+    opacity: 0.75
 
     property real scl
     property var imgs: ["qrc:/res/png/k0.png",

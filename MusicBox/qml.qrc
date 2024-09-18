@@ -12,5 +12,8 @@
         <file>view/page/InfoEditPage.qml</file>
         <file>view/page/RenamePage.qml</file>
         <file>view/item/MMediaPlayer.qml</file>
+        <file>view/item/MyTextField.qml</file>
+        <file>view/item/SpacerItem.qml</file>
+        <file>view/item/BusyItem.qml</file>
     </qresource>
 </RCC>

@@ -1,13 +1,13 @@
 ﻿import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt.labs.platform
+import QtQuick.Dialogs
 import "../item"
 
 Item {
     id: root
 
-    readonly property int space: 5
+    readonly property int space: 10
 
     ColumnLayout {
         anchors.fill: parent
@@ -27,47 +27,15 @@ Item {
                 visible: false
             }
 
-            CheckBox {
-                id: fileCheckBox
-                text: qsTr("文件")
-                checked: true
-                checkable: false
-                onCheckedChanged:{
-                    if(checked) {
-                        checkable = false;
-                        folderCheckBox.checked = false;
-                        folderCheckBox.checkable = true;
-                    }
-                }
-                visible: false
-            }
-            CheckBox {
-                id: folderCheckBox
-                text: qsTr("文件夹")
-                checked: false
-                checkable: true
-                onCheckedChanged: {
-                    if(checked) {
-                        checkable = false;
-                        fileCheckBox.checked = false;
-                        fileCheckBox.checkable = true;
-                    }
-                }
-                visible: false
-            }
             GlowButton {
                 id: chooseFilesBtn
                 width: root.width * 0.5
                 height: 30
                 text: qsTr(" 选择数据源")
+                btnIcon: "qrc:/res/svg/Done.svg"
                 Layout.alignment: Qt.AlignCenter
                 onClicked: {
-                    if(fileCheckBox.checked) {
-                        fileDialog.open()
-                    }
-                    else if(folderCheckBox.checked) {
-                        folderDialog.open()
-                    }
+                    fileDialog.open()
                     bottomSwipe.setCurrentIndex(0)
                 }
             }
@@ -78,18 +46,17 @@ Item {
             spacing: 0
             clip: true
 
-            property int itemHeight: 45
+            property int contentHeight: root.width * 0.1
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignLeft
             highlightFollowsCurrentItem: false
             highlight: Rectangle {
                 color: "transparent"
                 border.color: "steelblue";
                 radius: 2;
-                width: seleListView.width;
-                height: seleListView.itemHeight
+                width: seleListView.currentItem.width;
+                height: seleListView.currentItem.height
                 y: seleListView.currentItem.y
             }
             model: ListModel {
@@ -99,35 +66,33 @@ Item {
             delegate: SwipeDelegate {
                 id: listDelegate
                 width: seleListView.width
-                height: seleListView.itemHeight
+                height: seleListView.contentHeight
                 padding: 1
                 background: Rectangle{
                     color: "transparent"
                 }
 
-                contentItem: Rectangle {
+                Rectangle {
                     width: listDelegate.width
                     height: listDelegate.height
                     color: "transparent"
                     //height: 25
                     RowLayout {
-                        spacing: space
                         anchors.fill: parent
                         anchors.leftMargin: space
+                        anchors.rightMargin: space
                         Item {
-                            height: listDelegate.contentItem.height
+                            height: seleListView.contentHeight
                             width: height
-                            Layout.alignment: Qt.AlignVCenter
                             Image {
-                                height: parent.height
-                                width: height
+                                sourceSize: Qt.size(parent.height - root.space, parent.height - root.space)
                                 source: getIconPath(model.musicType)
-                                Layout.alignment: Qt.AlignVCenter
+                                anchors.centerIn: parent
                             }
                         }
 
                         RollLabel {
-                            height: listDelegate.contentItem.height
+                            height: seleListView.contentHeight
                             text: model.path
                             color: model.isDone ? getClr(model.musicType) : "#aa696969"
                         }
@@ -220,7 +185,6 @@ Item {
                         id: genFolderBtn
                         width: 60
                         height: 30
-                        btnIcon: ""
                         text: qsTr("选择")
                         onClicked:  {
                             genFolderDialog.open()
@@ -231,7 +195,6 @@ Item {
                         id: startBtn
                         width: 60
                         height: 30
-                        btnIcon: ""
                         text: qsTr("转换")
                         Layout.alignment: Qt.AlignCenter
                         onClicked: {
@@ -397,22 +360,9 @@ Item {
             //     var path = url.toString().replace("file:///", "")
             //     selectedFilesModel.insert(0, {path : path, isDone: true, musicType: 0})
             // }
-            appService.getSelectedFilesSig(files);
+            appService.getSelectedFilesSig(selectedFiles);
             //folder属性为空
-            appService.getTargetFolderSig(decodeURIComponent(files[0]), 0)
-        }
-    }
-
-    //obsolete
-    FolderDialog {
-        id: folderDialog
-        options: FolderDialog.ShowDirsOnly
-        onAccepted: {
-            selectedFilesModel.clear()
-            var url = decodeURIComponent(folder)
-            var path = url.toString().replace("file:///", "")
-            selectedFilesModel.insert(0, {path : path, isDone: true, musicType: 0})
-            appService.getTargetFolderSig(folder, 1)
+            appService.getTargetFolderSig(decodeURIComponent(selectedFiles[0]), 0)
         }
     }
 

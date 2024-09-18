@@ -13,7 +13,7 @@ ApplicationWindow {
     title: qsTr("MucisBox")
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height
-    readonly property string version: "v0.5_beta"
+    readonly property string version: "v0.6_beta"
 
     background: Image {
         source: "qrc:/res/bg.jpg"
@@ -236,7 +236,7 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
-    //BUG: 手拉尺寸时页面会错位。Popup得手写，用锚来绑定。
+    //BUG: windows手拉尺寸时页面会错位。Popup得手写，用锚来绑定。
     onInPortraitChanged: {
         if(inPortrait){
             mainPageLoader.width = mainWindow.width

@@ -5,10 +5,10 @@ win32 {
     DEFINES += TAGLIB_STATIC #炸裂，debug模式下taglib会报错
 
     CONFIG(debug, debug | release) {
-        QMAKE_CXXFLAGS_DEBUG += /MTd /NODEFAULTLIB:library
+        QMAKE_CXXFLAGS_DEBUG += /MTd /NODEFAULTLIB:msvcrtd.lib
     }
     CONFIG(release, debug | release){
-        QMAKE_CXXFLAGS_RELEASE += /MT /NODEFAULTLIB:library
+        QMAKE_CXXFLAGS_RELEASE += /MT /NODEFAULTLIB:msvcrt.lib
     }
 }
 
@@ -17,9 +17,12 @@ win32 {
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        controller/AppConfig.cpp \
         controller/AppService.cpp \
+        controller/InfoEditManager.cpp \
         controller/TranscodeManager.cpp \
         main.cpp \
+        model/DataModel/AudioInfo.cpp \
         model/FunModel/convert/ConverterFactory.cpp \
         model/FunModel/convert/KGMusicConverter.cpp \
         model/FunModel/convert/MusicFactory.cpp \
@@ -45,8 +48,11 @@ HEADERS += \
     common/Cde.h \
     common/Common.h \
     common/Logger.h \
+    controller/AppConfig.h \
     controller/AppService.h \
+    controller/InfoEditManager.h \
     controller/TranscodeManager.h \
+    model/DataModel/AudioInfo.h \
     model/DataModel/KGMusicData.h \
     model/DataModel/NCMusicData.h \
     model/DataModel/QQMusicData.h \
@@ -107,11 +113,11 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 android: include(C:/android-sdk-windows/android_openssl/openssl.pri)
 android: {
     INCLUDEPATH += C:/android-sdk-windows/android_openssl/ssl_1.1/include \
-                   E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel \
+                   "E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel" \
 
 
-    LIBS += C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libcrypto.a \
-            C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libssl.a \
+    LIBS += "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libcrypto.a" \
+            "C:\android-sdk-windows\android_openssl\ssl_1.1\armeabi-v7a\libssl.a" \
             "E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel\taglib\libtag.a" \
             "E:\Projects\taglib-1.13.1\build\Qt_6_7_2_Clang_armeabi_v7a-MinSizeRel\bindings\c\libtag_c.a"
 }

@@ -66,8 +66,8 @@ Rectangle {
         }
 
         // onProgressChanged: {
-        //     if(sqAni.running) sqAni.restart()
-        //     else sqAni.start()
+        //     if(shakeAni.running) shakeAni.restart()
+        //     else shakeAni.start()
         //     switch(root.state)
         //     {
         //         case "ks0": root.state = "ks1"; return;
@@ -78,7 +78,7 @@ Rectangle {
         // }
 
         SequentialAnimation{
-            id: sqAni
+            id: shakeAni
 
             ParallelAnimation
             {
