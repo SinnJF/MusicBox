@@ -27,19 +27,33 @@
 #include <taglib/mpeg/id3v2/id3v2framefactory.h>
 #include <taglib/mpeg/id3v2/frames/textidentificationframe.h>
 
+#include "common/AndroidHelper.h"
 #include "model/DataModel/AudioInfo.h"
+#include "AppConfig.h"
+
+InfoEditManager::InfoEditManager(QObject *parent)
+{
+    createTmpDir(AppConfig::getInstance().getCoverPath());
+}
+
+InfoEditManager::~InfoEditManager()
+{
+    //clearTmpFiles();
+}
 
 void InfoEditManager::getSrcInfo(QList<QUrl> vars)
 {
     QFileInfo fileInfo;
     QVariantList retVars;
     using namespace TagLib;
+
+    QString coverTmpDir = AppConfig::getInstance().getCoverPath();
     for(const auto &url : vars)
     {
         QString filePath;
         QString fileName;
 #ifdef Q_OS_ANDROID
-        filePath = getRealPathFromUri(url));
+        filePath = getRealPathFromUri(url);
 #else
         filePath = QQmlFile::urlToLocalFileOrQrc(url);
 #endif
@@ -47,25 +61,26 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
         fileName = fileInfo.completeBaseName();
         qDebug() << "InfoEditManager path: " << filePath;
         if(!fileInfo.isFile()) {
-            qWarning() << "access file fail...";
+            qWarning() << "access file fail... skip";
             continue;
         }
         AudioInfo info;
         QString cover;
         {
-        FileRef file(filePath.toStdWString().c_str());
-        String title_string = file.tag()->title();
-        String album_string = file.tag()->album();
-        QString title = QString::fromStdWString(title_string.toWString());
-        QString  album = QString::fromStdWString(album_string.toWString());
-        QString artist = QString::fromStdWString(file.tag()->artist().toWString());
-        QString comment = QString::fromStdWString(file.tag()->comment().toWString());
-        QString genre = QString::fromStdWString(file.tag()->genre().toWString());
-        QString year = QString::number(file.tag()->year());
-        QString lengths = QString::number(file.audioProperties()->bitrate());
+            FileRef file(filePath.toStdString().c_str());
+            if(!file.tag()) continue;
+            String title_string = file.tag()->title();
+            String album_string = file.tag()->album();
+            QString title = QString::fromStdWString(title_string.toWString());
+            QString  album = QString::fromStdWString(album_string.toWString());
+            QString artist = QString::fromStdWString(file.tag()->artist().toWString());
+            QString comment = QString::fromStdWString(file.tag()->comment().toWString());
+            QString genre = QString::fromStdWString(file.tag()->genre().toWString());
+            QString year = QString::number(file.tag()->year());
+            QString lengths = QString::number(file.audioProperties()->bitrate());
 
-        qDebug() << title << album << artist;
-        info = AudioInfo(filePath, title, artist, album, "");
+            qDebug() << title << album << artist;
+            info = AudioInfo(filePath, title, artist, album, "");
         }
 
         QFile f(filePath);
@@ -76,10 +91,10 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
         if(header.left(4) == flacHeader)
         {
             qDebug() << "src: detect flac tag";
-            FLAC::File file(filePath.toStdWString().c_str());
+            FLAC::File file(filePath.toStdString().c_str());
 
             qWarning() << "is valid: " << file.isValid()
-                       << QString::fromStdWString(file.name().wstr());
+                       << QString::fromStdString(file.name());
             List<FLAC::Picture*> pics = file.pictureList();
             qWarning() << pics.size();
             for(const auto& pic : pics)
@@ -90,7 +105,7 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
                     //QByteArray ba(data.data(), data.size());
                     QPixmap pixmap;
                     pixmap.loadFromData((const uchar*)data.data(), data.size());
-                    cover = coverTmpDir + fileName + "_fileIcon.png";
+                    cover = coverTmpDir + "/" + fileName + "_fileIcon.png";
                     qWarning() << "save flac fileicon: " << pixmap.save(cover);
                     break;
                 }
@@ -99,7 +114,7 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
                     //QByteArray ba(data.data(), data.size());
                     QPixmap pixmap;
                     pixmap.loadFromData((const uchar*)data.data(), data.size());
-                    cover = coverTmpDir + fileName + "_otherFileIcon.png";
+                    cover = coverTmpDir + "/" + fileName + "_otherFileIcon.png";
                     qWarning() << "save flac otherFileIcon: " << pixmap.save(cover);
                     break;
                 }
@@ -108,7 +123,7 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
                     //QByteArray ba(data.data(), data.size());
                     QPixmap pixmap;
                     pixmap.loadFromData((const uchar*)data.data(), data.size());
-                    cover = coverTmpDir + fileName + "_fontCover.png";
+                    cover = coverTmpDir + "/" + fileName + "_fontCover.png";
                     qWarning() << "save flac fontCover: " << pixmap.save(cover);
                     break;
                 }
@@ -117,7 +132,7 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
                     //QByteArray ba(data.data(), data.size());
                     QPixmap pixmap;
                     pixmap.loadFromData((const uchar*)data.data(), data.size());
-                    cover = coverTmpDir + fileName + "_backCover.png";
+                    cover = coverTmpDir + "/" + fileName + "_backCover.png";
                     qWarning() << "save flac backCover: " << pixmap.save(cover);
                     break;
                 }
@@ -130,9 +145,9 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
         else if(header.left(3) == ID3Header)
         {
             qDebug() << "src: detect id3 tag";
-            MPEG::File file(filePath.toStdWString().c_str());
+            MPEG::File file(filePath.toStdString().c_str());
             qWarning() << "isvalid: " << file.isValid()
-                       << QString::fromStdWString(file.name().wstr());
+                       << QString::fromStdString(file.name());
             ID3v2::Tag* tag = file.ID3v2Tag();
             if(!tag) break;
             ID3v2::FrameList fList = tag->frameList("APIC");
@@ -143,7 +158,7 @@ void InfoEditManager::getSrcInfo(QList<QUrl> vars)
                 QPixmap pixmap;
                 pixmap.loadFromData((const uchar*)coverFrame->picture().data(),
                                     coverFrame->picture().size());
-                cover = coverTmpDir + fileName + "_apic.png";
+                cover = coverTmpDir + "/" + fileName + "_apic.png";
                 qWarning() << "save id3 apic: " << pixmap.save(cover);
             }
         }
@@ -202,30 +217,17 @@ void InfoEditManager::editInfo(QVariant vars)
         emit retSig(QVariant::fromValue(retMap));
         emit retProgressSig(total, successCnt, failCnt);
     }
-
-
 }
 
-InfoEditManager::InfoEditManager(QObject *parent)
+void InfoEditManager::createTmpDir(QString d)
 {
-    createTmpDir();
-}
-
-InfoEditManager::~InfoEditManager()
-{
-    clearTmpFiles();
-}
-
-void InfoEditManager::createTmpDir()
-{
-    coverTmpDir = QCoreApplication::applicationDirPath() + "/cover/";
     QDir dir;
-    dir.mkpath(coverTmpDir);
+    dir.mkpath(d);
 }
 
 void InfoEditManager::clearTmpFiles()
 {
-    QDir dir(coverTmpDir);
+    QDir dir(AppConfig::getInstance().getCoverPath());
     dir.removeRecursively();
 }
 
@@ -233,7 +235,7 @@ bool InfoEditManager::editMpegInfo(QString filePath, QString title, QString arti
 {
     using namespace TagLib;
     qDebug() << "edit: detect id3 tag";
-    MPEG::File file(filePath.toStdWString().c_str());
+    MPEG::File file(filePath.toStdString().c_str());
     if(!file.isValid()){
         qWarning() << "暂不支持该格式或文件损坏：" << filePath;
         return false;
@@ -261,7 +263,7 @@ bool InfoEditManager::editFlacInfo(QString filePath, QString title, QString arti
 {
     using namespace TagLib;
     qDebug() << "edit: detect flac tag";
-    FLAC::File file(filePath.toStdWString().c_str());
+    FLAC::File file(filePath.toStdString().c_str());
     if(!file.isValid()){
         qWarning() << "暂不支持该格式或文件损坏：" << filePath;
         return false;
@@ -269,13 +271,13 @@ bool InfoEditManager::editFlacInfo(QString filePath, QString title, QString arti
     file.tag()->setTitle(title.toStdWString().c_str());
     file.tag()->setArtist(artist.toStdWString().c_str());
     file.tag()->setAlbum(album.toStdWString().c_str());
-    List<FLAC::Picture*> pics = file.pictureList();
-    for (auto pic : pics) {
-        file.removePicture(pic);
-    }
     QFile f(coverPath);
     if(f.open(QIODevice::ReadOnly))
     {
+        List<FLAC::Picture*> pics = file.pictureList();
+        for (auto pic : pics) {
+            file.removePicture(pic);
+        }
         QByteArray ba = f.readAll();
         auto img = new FLAC::Picture();
         img->setData(ByteVector(ba.data(), ba.size()));

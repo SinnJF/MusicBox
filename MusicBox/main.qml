@@ -236,7 +236,7 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
-    //BUG: 手拉尺寸时页面会错位。Popup得手写，用锚来绑定。
+    //BUG: windows手拉尺寸时页面会错位。Popup得手写，用锚来绑定。
     onInPortraitChanged: {
         if(inPortrait){
             mainPageLoader.width = mainWindow.width

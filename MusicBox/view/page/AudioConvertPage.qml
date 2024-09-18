@@ -7,7 +7,7 @@ import "../item"
 Item {
     id: root
 
-    readonly property int space: 5
+    readonly property int space: 10
 
     ColumnLayout {
         anchors.fill: parent
@@ -46,18 +46,17 @@ Item {
             spacing: 0
             clip: true
 
-            property int itemHeight: 45
+            property int contentHeight: root.width * 0.1
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignLeft
             highlightFollowsCurrentItem: false
             highlight: Rectangle {
                 color: "transparent"
                 border.color: "steelblue";
                 radius: 2;
-                width: seleListView.width;
-                height: seleListView.itemHeight
+                width: seleListView.currentItem.width;
+                height: seleListView.currentItem.height
                 y: seleListView.currentItem.y
             }
             model: ListModel {
@@ -67,35 +66,33 @@ Item {
             delegate: SwipeDelegate {
                 id: listDelegate
                 width: seleListView.width
-                height: seleListView.itemHeight
+                height: seleListView.contentHeight
                 padding: 1
                 background: Rectangle{
                     color: "transparent"
                 }
 
-                contentItem: Rectangle {
+                Rectangle {
                     width: listDelegate.width
                     height: listDelegate.height
                     color: "transparent"
                     //height: 25
                     RowLayout {
-                        spacing: space
                         anchors.fill: parent
                         anchors.leftMargin: space
+                        anchors.rightMargin: space
                         Item {
-                            height: listDelegate.contentItem.height
+                            height: seleListView.contentHeight
                             width: height
-                            Layout.alignment: Qt.AlignVCenter
                             Image {
-                                height: parent.height
-                                width: height
+                                sourceSize: Qt.size(parent.height - root.space, parent.height - root.space)
                                 source: getIconPath(model.musicType)
-                                Layout.alignment: Qt.AlignVCenter
+                                anchors.centerIn: parent
                             }
                         }
 
                         RollLabel {
-                            height: listDelegate.contentItem.height
+                            height: seleListView.contentHeight
                             text: model.path
                             color: model.isDone ? getClr(model.musicType) : "#aa696969"
                         }

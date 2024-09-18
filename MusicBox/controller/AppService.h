@@ -10,8 +10,7 @@ class AppService : public QObject
 {
     Q_OBJECT
 public:
-    explicit AppService(QObject *parent = nullptr);
-    ~AppService();
+    static AppService* getInstance();
 
     Q_INVOKABLE void handleRenameSwitch(QVariant vars);
     Q_INVOKABLE void handleRenameRepl(QVariant vars, QString tobeRepl, QString repl);
@@ -21,6 +20,23 @@ public:
     Q_INVOKABLE QStringList getRealPaths(QList<QUrl> vars);
 
 private:
+    static AppService* instance;
+    explicit AppService(QObject *parent = nullptr);
+    ~AppService();
+
+    class CgarRes   //类中嵌套，用来释放对象
+    {
+    public:
+        ~CgarRes()
+        {
+            if (AppService::instance)
+            {
+                delete AppService::instance;
+                AppService::instance = nullptr;
+            }
+        }
+    };
+
     QThread* transManThread = nullptr;
     QThread* infoEditThread = nullptr;
 

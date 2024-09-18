@@ -31,6 +31,8 @@ Item {
             spacing: 0
             clip: true
 
+            property int contentHeight: root.width * 0.1
+
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignLeft
@@ -42,13 +44,13 @@ Item {
             delegate: SwipeDelegate {
                 id: listDelegate
                 width: seleListView.width
-                height: 45
+                height: seleListView.contentHeight + space
                 padding: 1
                 background: Rectangle{
                     color: "transparent"
                 }
 
-                contentItem: Rectangle {
+                Rectangle {
                     width: listDelegate.width
                     height: listDelegate.height
                     color: "transparent"
@@ -57,20 +59,19 @@ Item {
                         spacing: space
                         anchors.fill: parent
                         anchors.leftMargin: space
+                        anchors.rightMargin: space
                         Item {
-                            height: listDelegate.contentItem.height - space
+                            height: seleListView.contentHeight
                             width: height
-                            Layout.alignment: Qt.AlignVCenter
                             Image {
-                                height: parent.height
-                                width: height
+                                sourceSize: Qt.size(parent.height - root.space, parent.height - root.space)
                                 source: getIconPath(model.musicType)
-                                Layout.alignment: Qt.AlignVCenter
+                                anchors.centerIn: parent
                             }
                         }
 
                         RollLabel {
-                            height: listDelegate.contentItem.height
+                            height: seleListView.contentHeight
                             text: model.path
                             color: model.isDone ? getClr(model.musicType) : "#aa696969"
                         }

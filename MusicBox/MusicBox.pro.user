@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 14.0.0, 2024-09-17T00:22:40. -->
+<!-- Written by QtCreator 14.0.0, 2024-09-18T00:52:21. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -263,7 +263,7 @@
    <value type="QString" key="DeviceType">Android.Device.Type</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">安卓 Qt 6.7.2 Clang armeabi-v7a</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">安卓 Qt 6.7.2 Clang armeabi-v7a</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{053c2df7-a280-44c9-9e27-44fb2fa33f81}</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{56fa8fba-bdbb-42d1-9f3c-4440600614cd}</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveBuildConfiguration">1</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
@@ -290,7 +290,7 @@
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.3">
       <value type="QString" key="BuildTargetSdk">android-34</value>
       <value type="QString" key="BuildToolsVersion"></value>
-      <value type="QString" key="KeystoreLocation"></value>
+      <value type="QString" key="KeystoreLocation">E:/password/123zxc-/android_release.keystore</value>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">构建安卓 APK</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">QmakeProjectManager.AndroidBuildApkStep</value>
@@ -341,7 +341,7 @@
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.3">
       <value type="QString" key="BuildTargetSdk">android-34</value>
-      <value type="QString" key="BuildToolsVersion">34.0.0</value>
+      <value type="QString" key="BuildToolsVersion"></value>
       <value type="QString" key="KeystoreLocation">E:/password/123zxc-/android_release.keystore</value>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">构建安卓 APK</value>
@@ -472,7 +472,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">MusicBox</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.AndroidRunConfiguration:E:/Projects/QT/MusicBox/MusicBox/MusicBox.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">E:/Projects/QT/MusicBox/MusicBox/MusicBox.pro</value>
-    <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
+    <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
@@ -483,16 +483,16 @@
   <variable>ProjectExplorer.Project.Target.2</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="DeviceType">Android.Device.Type</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">安卓 Qt 6.7.2 Clang arm64-v8a</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">安卓 Qt 6.7.2 Clang arm64-v8a</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{e55623e9-25b9-4fd8-8a20-fe0768131db9}</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">安卓 Qt 6.7.2 Clang armeabi-v7a</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">安卓 Qt 6.7.2 Clang armeabi-v7a</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{c8bea84e-4d42-41c8-abe2-74248060cb26}</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveBuildConfiguration">1</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.0">
     <value type="int" key="EnableQmlDebugging">0</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">E:\Projects\QT\MusicBox\MusicBox\build\Qt_6_7_2_Clang_arm64_v8a-Debug</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">E:/Projects/QT/MusicBox/MusicBox/build/Qt_6_7_2_Clang_arm64_v8a-Debug</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">E:\Projects\QT\MusicBox\MusicBox\build\Qt_6_7_2_Clang_armeabi_v7a-Debug</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">E:/Projects/QT/MusicBox/MusicBox/build/Qt_6_7_2_Clang_armeabi_v7a-Debug</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -511,8 +511,8 @@
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.3">
       <value type="QString" key="BuildTargetSdk">android-34</value>
-      <value type="QString" key="BuildToolsVersion"></value>
-      <value type="QString" key="KeystoreLocation"></value>
+      <value type="QString" key="BuildToolsVersion">34.0.0</value>
+      <value type="QString" key="KeystoreLocation">E:/password/123zxc-/android_release.keystore</value>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">构建安卓 APK</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">QmakeProjectManager.AndroidBuildApkStep</value>
@@ -543,8 +543,8 @@
     <value type="int" key="Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration">2</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.1">
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">E:\Projects\QT\MusicBox\MusicBox\build\Qt_6_7_2_Clang_arm64_v8a-Release</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">E:/Projects/QT/MusicBox/MusicBox/build/Qt_6_7_2_Clang_arm64_v8a-Release</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">E:\Projects\QT\MusicBox\MusicBox\build\Qt_6_7_2_Clang_armeabi_v7a-Release</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">E:/Projects/QT/MusicBox/MusicBox/build/Qt_6_7_2_Clang_armeabi_v7a-Release</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -564,7 +564,7 @@
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.3">
       <value type="QString" key="BuildTargetSdk">android-34</value>
       <value type="QString" key="BuildToolsVersion"></value>
-      <value type="QString" key="KeystoreLocation"></value>
+      <value type="QString" key="KeystoreLocation">E:/password/123zxc-/android_release.keystore</value>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">构建安卓 APK</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">QmakeProjectManager.AndroidBuildApkStep</value>
@@ -596,8 +596,8 @@
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.2">
     <value type="int" key="EnableQmlDebugging">0</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">E:\Projects\QT\MusicBox\MusicBox\build\Qt_6_7_2_Clang_arm64_v8a-Profile</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">E:/Projects/QT/MusicBox/MusicBox/build/Qt_6_7_2_Clang_arm64_v8a-Profile</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">E:\Projects\QT\MusicBox\MusicBox\build\Qt_6_7_2_Clang_armeabi_v7a-Profile</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">E:/Projects/QT/MusicBox/MusicBox/build/Qt_6_7_2_Clang_armeabi_v7a-Profile</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -691,7 +691,7 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph &quot;dwarf,4096&quot; -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">MusicBox</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.AndroidRunConfiguration:E:/Projects/QT/MusicBox/MusicBox/MusicBox.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">E:/Projects/QT/MusicBox/MusicBox/MusicBox.pro</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>

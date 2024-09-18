@@ -8,7 +8,7 @@ Item {
     id: root
 
     readonly property int space: 10
-    readonly property int baseContentH: 45
+    readonly property int baseContentH: width * 0.1
     readonly property int expandContentH: width * 0.6
     readonly property int contentH: baseContentH + expandContentH
 
@@ -41,8 +41,8 @@ Item {
 
         ListView {
             id: seleListView
-            spacing: 0
             clip: true
+            spacing: 2
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -61,23 +61,24 @@ Item {
                     color: "transparent"
                 }
 
-                contentItem: Rectangle {
+                Rectangle {
                     width: listDelegate.width
                     height: baseContentH
+                    anchors.fill: parent
                     color: "transparent"
                     clip: true
-                    //height: 25
                     ColumnLayout {
                         anchors.fill: parent
+                        spacing: 0
+                        anchors.bottomMargin: space
                         RowLayout {
-                            spacing: 0
-                            anchors.rightMargin: 10
+                            anchors.leftMargin: space
+                            anchors.rightMargin: space
                             Item {
                                 height: baseContentH
                                 width: height
                                 Image {
-                                    height: parent.height - space
-                                    width: height
+                                    sourceSize: Qt.size(parent.width - space, parent.width - space)
                                     source: getIconPath(model.musicType)
                                     anchors.centerIn: parent
                                 }
@@ -93,10 +94,10 @@ Item {
                         Rectangle {
                             //id: infoEditor
                             width: listDelegate.width
-                            height: width * 0.6
+                            height: expandContentH
                             Layout.fillWidth: true
                             //visible: false
-                            color: "#33b0c4de"
+                            color: "#77b0c4de"
                             GridLayout {
                                 anchors.fill: parent
                                 columnSpacing: space * 2
@@ -106,7 +107,7 @@ Item {
                                 MyTextField {
                                     height: baseContentH
                                     text: model.title
-                                    placeholderText: qsTr("输入标题")
+                                    //placeholderText: qsTr("输入标题")
                                     onTextEdited: model.title = text
                                 }
 
@@ -114,7 +115,7 @@ Item {
                                 MyTextField {
                                     height: baseContentH
                                     text: model.artist
-                                    placeholderText: qsTr("输入艺人，多个以;或/间隔")
+                                    //placeholderText: qsTr("输入艺人，多个以;或/间隔")
                                     onTextEdited: model.artist = text
                                 }
 
@@ -122,7 +123,7 @@ Item {
                                 MyTextField {
                                     height: baseContentH
                                     text: model.album
-                                    placeholderText: qsTr("输入专辑")
+                                    //placeholderText: qsTr("输入专辑")
                                     onTextEdited: model.album = text
                                 }
 
@@ -264,8 +265,30 @@ Item {
         fileMode: FileDialog.OpenFiles
         nameFilters: ["All files (*.*)"]
         onAccepted: {
+            busyPopup.open()
             selectedFilesModel.clear()
             appService.getFilesnfoSig(selectedFiles)
+        }
+    }
+
+    Popup {
+        id: busyPopup
+        padding: 0
+        modal: true
+        focus: true
+        anchors.centerIn: root
+        width: root.width * 0.6
+        height: width
+        x: (root.width - width) / 2
+        y: (root.height - height) / 2
+        background: Rectangle
+        {
+            color:"transparent"
+        }
+
+        contentItem: BusyItem
+        {
+            //z: 3
         }
     }
 
@@ -294,6 +317,7 @@ Item {
     Connections {
         target: appService
         function onRetFilesInfoSig(vars) {
+            busyPopup.close()
             selectedFilesModel.clear()
             for(var i = 0; i < vars.length; ++i)
             {
@@ -339,7 +363,7 @@ Item {
         case 1: return "#aa66b2ff";
         case 2: return "#aaffcccc";
         case 3: return "#aa37e3be";
-        default: return "#aaffffe0";
+        default: return "#aa4682b4";
         }
     }
     function showInfo(str)

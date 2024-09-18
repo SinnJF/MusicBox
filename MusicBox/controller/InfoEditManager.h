@@ -24,8 +24,7 @@ private:
     const QByteArray flacHeader = "fLaC";
     const QByteArray ID3Header = "ID3";
 
-    QString coverTmpDir;
-    void createTmpDir();
+    void createTmpDir(QString d);
     void clearTmpFiles();
 
     bool editMpegInfo(QString filePath, QString title, QString artist, QString album, QString coverPath);

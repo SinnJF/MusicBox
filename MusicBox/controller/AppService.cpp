@@ -5,6 +5,22 @@
 
 #include <QThread>
 #include <QQmlFile>
+#include <QMutex>
+
+QMutex appMtx;
+AppService* AppService::instance = nullptr;
+AppService* AppService::getInstance()
+{
+    if(!instance){
+        QMutexLocker lock(&appMtx);
+        if(!instance)
+        {
+            instance = new AppService();
+            static CgarRes gar;
+        }
+    }
+    return instance;
+}
 
 AppService::AppService(QObject *parent)
     : QObject{parent}

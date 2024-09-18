@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QtGlobal>
 
+#include "controller/AppConfig.h"
 #include "controller/AppService.h"
 #include "common/Logger.h"
 
@@ -62,28 +63,32 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
-#ifdef QT_NO_DEBUG
-    qInstallMessageHandler(outputMsg);
-#endif
 
+    qInstallMessageHandler(outputMsg);
+
+    QString appPath;
     QString logPath;
 #ifdef Q_OS_ANDROID
-    //checkPermission();
+    checkPermission();
     accessAllFiles();
-    logPath = "/sdcard/MusicBox/log.txt";
-    QDir dir;
-    dir.mkdir("/sdcard/MusicBox/");
+    appPath = "/sdcard/MusicBox";
+    logPath = appPath + "/log.txt";
 #else
-    logPath = QDir::currentPath() + QDir::separator() + "log.txt";
+    appPath = QCoreApplication::applicationDirPath();
+    logPath = appPath + QDir::separator() + "log.txt";
 #endif
+    QDir dir;
+    dir.mkdir(appPath);
+    AppConfig::getInstance().setAppPath(appPath);
+    dir.mkpath(AppConfig::getInstance().getCoverPath());
+
     logFile.setFileName(logPath);
-    qInfo() << "open " << logPath << " : " << logFile.open(QIODevice::WriteOnly | QIODevice::Append);
+    qInfo() << "open " << logPath << " : "
+            << logFile.open(QIODevice::WriteOnly | QIODevice::Append);
     qInfo("==================log==================");
-    //qInfo() << "main threadid: " << QThread::currentThreadId();
-    AppService appService;
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("appService", &appService);
+    engine.rootContext()->setContextProperty("appService", AppService::getInstance());
     engine.rootContext()->setContextProperty("log", &Logger::getInatance());
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -95,19 +100,6 @@ int main(int argc, char *argv[])
     QObject::connect(&app, &QGuiApplication::lastWindowClosed, endLog);
 
     engine.load(url);
-
-    // QFile a("/storage/emulated/0/MusicBox/a.txt");
-    // qInfo() << "===============000000000" << a.open(QIODevice::ReadOnly);
-    // qInfo() << "==============111111111" << a.errorString() << "data: " << a.readAll();
-    // QFileInfo aa(a);
-    // qInfo() << "===============222222222" << aa.filePath() << aa.baseName() << aa.suffix();
-    // a.close();
-    // a.setFileName("/storage/emulated/0/MusicBox/b.txt");
-    // qInfo() << "=============333333333" << a.open(QIODevice::WriteOnly);
-    // qInfo() << "=============12313" << a.errorString();
-    // a.write("bbbbbbbb");
-    // a.close();
-
 
     return app.exec();
 }
